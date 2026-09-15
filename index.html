@@ -46,7 +46,7 @@
   </div>
 </header>
 
-<!-- ===================== TABS + VIEW TOGGLE ===================== -->
+<!-- ===================== TABS + VIEW TOGGLE + PRICE FILTER TOGGLE ===================== -->
 <nav class="tabs-wrap" id="tabsWrap">
   <div class="tabs" id="tabs"></div>
   <div class="view-toggle" id="viewToggle" role="group" aria-label="تغییر نمای نمایش">
@@ -57,7 +57,45 @@
       <span aria-hidden="true">▦</span>
     </button>
   </div>
+  <button type="button" class="price-filter-toggle" id="priceFilterToggle" aria-label="فیلتر قیمت">
+    <span aria-hidden="true">🎚️</span>
+    <span class="price-filter-badge hidden" id="priceFilterBadge">۰</span>
+  </button>
 </nav>
+
+<!-- ===================== PRICE FILTER PANEL ===================== -->
+<div class="price-filter-panel" id="priceFilterPanel" aria-hidden="true">
+  <div class="price-filter-inner">
+    <div class="price-filter-header">
+      <h3>💰 فیلتر بازه قیمت</h3>
+      <button type="button" class="price-filter-close" id="priceFilterClose" aria-label="بستن">✕</button>
+    </div>
+
+    <div class="price-filter-inputs">
+      <div class="price-filter-field">
+        <label for="priceMinInput">از قیمت (تومان)</label>
+        <input type="text" id="priceMinInput" inputmode="numeric" placeholder="مثلاً 50000000" autocomplete="off">
+      </div>
+      <div class="price-filter-field">
+        <label for="priceMaxInput">تا قیمت (تومان)</label>
+        <input type="text" id="priceMaxInput" inputmode="numeric" placeholder="مثلاً 200000000" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="price-filter-presets">
+      <button type="button" class="preset-range" data-min="0" data-max="50000000">تا ۵۰ میلیون</button>
+      <button type="button" class="preset-range" data-min="50000000" data-max="100000000">۵۰ تا ۱۰۰ میلیون</button>
+      <button type="button" class="preset-range" data-min="100000000" data-max="200000000">۱۰۰ تا ۲۰۰ میلیون</button>
+      <button type="button" class="preset-range" data-min="200000000" data-max="0">بالای ۲۰۰ میلیون</button>
+    </div>
+
+    <div class="price-filter-status" id="priceFilterStatus">همه محصولات</div>
+
+    <button type="button" class="price-filter-clear hidden" id="priceFilterClear">
+      🗑️ پاک کردن فیلتر
+    </button>
+  </div>
+</div>
 
 <!-- ===================== MAIN CONTENT ===================== -->
 <main class="main" id="mainContent">
