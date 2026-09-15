@@ -1,6 +1,7 @@
 /* ================================================================
    باشایان | نسخه فروشنده
    فایل استایل اصلی — نسخه نهایی
+   شامل: گالری تصاویر + فیلتر قیمت
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
@@ -380,7 +381,7 @@ body {
   background: var(--line);
 }
 
-/* ============ 5. TABS + VIEW TOGGLE ============ */
+/* ============ 5. TABS + VIEW TOGGLE + PRICE FILTER TOGGLE ============ */
 .tabs-wrap {
   position: sticky;
   top: var(--header-h);
@@ -1867,7 +1868,79 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ COMPARE TABLE ============ */
+/* ============ 14. گالری تصاویر در FOCUS MODE ============ */
+.focus-gallery {
+  margin-bottom: 20px;
+}
+
+.focus-gallery .focus-image-wrap {
+  margin-bottom: 10px;
+}
+
+.focus-main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 20px;
+  transition: opacity 0.3s var(--ease-apple);
+}
+
+.focus-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.focus-thumbs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.focus-thumbs::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 2px;
+}
+
+.focus-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-soft);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.25s var(--ease-apple), transform 0.2s var(--ease-spring), box-shadow 0.25s;
+}
+
+.focus-thumb:hover {
+  border-color: var(--line-strong);
+}
+
+.focus-thumb:active {
+  transform: scale(0.94);
+}
+
+.focus-thumb.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.focus-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  pointer-events: none;
+}
+
+/* ============ 15. COMPARE TABLE ============ */
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1975,7 +2048,7 @@ tbody tr:last-child td {
   color: var(--success);
 }
 
-/* ============ CALCULATOR ============ */
+/* ============ 16. CALCULATOR ============ */
 .calc-label {
   display: block;
   font-size: 12.5px;
@@ -2080,7 +2153,213 @@ tbody tr:last-child td {
   border-color: var(--line);
 }
 
-/* ============ 14. TOAST ============ */
+/* ============ 17. PRICE FILTER ============ */
+.price-filter-toggle {
+  position: relative;
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: transparent;
+  transition: background-color 0.25s var(--ease-apple), color 0.25s, transform 0.2s var(--ease-spring);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.price-filter-toggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--ink);
+}
+
+.price-filter-toggle:active {
+  transform: scale(0.9);
+}
+
+.price-filter-toggle.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.price-filter-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-elevated);
+}
+
+.price-filter-panel {
+  position: sticky;
+  top: calc(var(--header-h) + 52px);
+  z-index: 38;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--line-soft);
+  max-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: max-height 0.35s var(--ease-apple), visibility 0s 0.35s;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+.price-filter-panel.open {
+  max-height: 400px;
+  visibility: visible;
+  transition: max-height 0.35s var(--ease-apple), visibility 0s;
+}
+
+.price-filter-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 14px 16px 16px;
+}
+
+.price-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.price-filter-header h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.price-filter-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s var(--ease-spring);
+}
+
+.price-filter-close:active {
+  transform: scale(0.85);
+}
+
+.price-filter-close:hover {
+  background: var(--bg-tertiary);
+}
+
+.price-filter-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.price-filter-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.price-filter-field input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line-soft);
+  background: var(--bg-secondary);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  letter-spacing: 0.3px;
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.price-filter-field input:focus {
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.price-filter-field input::placeholder {
+  font-weight: 500;
+  color: var(--muted-soft);
+}
+
+.price-filter-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.preset-range {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--line-soft);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: transform 0.2s var(--ease-spring), background-color 0.2s, border-color 0.2s;
+}
+
+.preset-range:active {
+  transform: scale(0.95);
+}
+
+.preset-range:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--line);
+}
+
+.price-filter-status {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 6px 0;
+}
+
+.price-filter-clear {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.2s var(--ease-spring), background-color 0.2s;
+}
+
+.price-filter-clear:active {
+  transform: scale(0.97);
+}
+
+.price-filter-clear:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ============ 18. TOAST ============ */
 .toast {
   position: fixed;
   bottom: 100px;
@@ -2123,7 +2402,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 15. OVERLAY ============ */
+/* ============ 19. OVERLAY ============ */
 .overlay {
   position: fixed;
   inset: 0;
@@ -2141,7 +2420,7 @@ tbody tr:last-child td {
   pointer-events: auto;
 }
 
-/* ============ 16. FOOTER ============ */
+/* ============ 20. FOOTER ============ */
 .footer {
   background: var(--bg-elevated);
   border-top: 1px solid var(--line-soft);
@@ -2196,7 +2475,7 @@ tbody tr:last-child td {
   opacity: 0.7;
 }
 
-/* ============ 17. دکمه FOCUS ============ */
+/* ============ 21. دکمه FOCUS ============ */
 .focus-btn {
   background: none;
   border: none;
@@ -2222,7 +2501,7 @@ tbody tr:last-child td {
   transform: scale(0.85);
 }
 
-/* ============ 18. ANIMATIONS ============ */
+/* ============ 22. ANIMATIONS ============ */
 @keyframes rowIn {
   from {
     opacity: 0;
@@ -2332,7 +2611,7 @@ tbody tr:last-child td {
   }
 }
 
-/* ============ 19. RESPONSIVE ============ */
+/* ============ 23. RESPONSIVE ============ */
 @media (max-width: 900px) {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -2593,6 +2872,16 @@ tbody tr:last-child td {
     font-size: 13.5px;
   }
 
+  .focus-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+  }
+
+  .focus-main-image {
+    padding: 12px;
+  }
+
   .compare-grid {
     grid-template-columns: 1fr;
   }
@@ -2601,6 +2890,34 @@ tbody tr:last-child td {
     bottom: 90px;
     font-size: 12px;
     padding: 10px 18px;
+  }
+
+  /* فیلتر قیمت در موبایل */
+  .price-filter-panel {
+    top: calc(var(--header-h) + 48px);
+  }
+
+  .price-filter-inner {
+    padding: 12px 12px 14px;
+  }
+
+  .price-filter-inputs {
+    gap: 8px;
+  }
+
+  .price-filter-field input {
+    font-size: 12.5px;
+    padding: 9px 10px;
+  }
+
+  .price-filter-presets {
+    gap: 5px;
+  }
+
+  .preset-range {
+    font-size: 10.5px;
+    padding: 7px 10px;
+    min-width: 100px;
   }
 }
 
@@ -2614,7 +2931,7 @@ tbody tr:last-child td {
   }
 }
 
-/* ============ 20. PRINT (A4 LANDSCAPE) ============ */
+/* ============ 24. PRINT (A4 LANDSCAPE) ============ */
 @media print {
   body {
     background: #fff !important;
@@ -2624,6 +2941,8 @@ tbody tr:last-child td {
 
   .app-header,
   .tabs-wrap,
+  .price-filter-toggle,
+  .price-filter-panel,
   .floating-bar,
   .compare-floating,
   .drawer,
