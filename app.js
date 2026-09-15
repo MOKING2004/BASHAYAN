@@ -1,6 +1,6 @@
 /* ================================================================
    باشایان | نسخه فروشنده
-   فایل منطق اصلی اپلیکیشن
+   فایل منطق اصلی اپلیکیشن — نسخه نهایی اصلاح‌شده
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
@@ -17,48 +17,42 @@
   let state = {
     activeTab: 'all',
     searchTerm: '',
-    viewMode: 'table',            // 'table' یا 'card'
-    theme: 'light',               // 'light' یا 'dark'
-    compareList: [],              // آرایه شناسه محصولات برای مقایسه
-    currentCartId: null,          // شناسه سبد فعلی
-    carts: {},                    // { cartId: { name, items:[{n,p,b,img,qty,category}] } }
+    viewMode: 'table',
+    theme: 'light',
+    compareList: [],
+    currentCartId: null,
+    carts: {},
     toastTimer: null,
     searchTimer: null
   };
 
   /* ============================================================
-     بخش ۲: توابع کمکی (Helpers)
+     بخش ۲: توابع کمکی
      ============================================================ */
 
-  // تبدیل عدد به فرمت فارسی با کاما
   function faNum(num) {
     if (num === undefined || num === null || isNaN(num)) return '۰';
     return Number(num).toLocaleString('fa-IR');
   }
 
-  // محاسبه قسط باجت (۲۴ ماهه)
   function calcBajet(base) {
     if (!base) return 0;
     return Math.round((base * CONFIG.installments.bajet.rate) / CONFIG.installments.bajet.months);
   }
 
-  // محاسبه قسط آوند (۱۸ ماهه)
   function calcAvand(base) {
     if (!base) return 0;
     return Math.round((base * CONFIG.installments.avand.rate) / CONFIG.installments.avand.months);
   }
 
-  // گرفتن پایه قیمت (اگر b داشته باشد، b؛ وگرنه p)
   function getBase(item) {
     return (typeof item.b === 'number') ? item.b : item.p;
   }
 
-  // تولید شناسه یکتا برای محصول (بر اساس نام)
   function itemId(item) {
     return 'p_' + item.n.replace(/\s+/g, '_').replace(/[^\u0600-\u06FFa-zA-Z0-9_]/g, '');
   }
 
-  // ذخیره در localStorage
   function save(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -67,7 +61,6 @@
     }
   }
 
-  // بازیابی از localStorage
   function load(key, defaultValue) {
     try {
       const raw = localStorage.getItem(key);
@@ -79,25 +72,32 @@
     }
   }
 
-  // به‌روزرسانی متن یک المان با انیمیشن Roll
   function setRollingText(el, text) {
     if (!el) return;
     el.classList.remove('rolling');
-    // Force reflow
     void el.offsetWidth;
     el.textContent = text;
     el.classList.add('rolling');
   }
 
-  // پاکسازی متن از HTML
   function stripHtml(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || '';
   }
 
+  function escapeAttr(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   /* ============================================================
-     بخش ۳: Toast (اعلان)
+     بخش ۳: Toast
      ============================================================ */
 
   function toast(message, type) {
@@ -111,19 +111,17 @@
     if (type === 'success') toastEl.classList.add('success');
     if (type === 'error') toastEl.classList.add('error');
 
-    // نمایش
     requestAnimationFrame(function () {
       toastEl.classList.add('show');
     });
 
-    // مخفی کردن بعد از ۲.۵ ثانیه
     state.toastTimer = setTimeout(function () {
       toastEl.classList.remove('show');
     }, 2500);
   }
 
   /* ============================================================
-     بخش ۴: تم (روشن / تاریک)
+     بخش ۴: تم
      ============================================================ */
 
   function initTheme() {
@@ -135,10 +133,12 @@
   function applyTheme(theme) {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', '#000000');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', '#0f172a');
     }
   }
 
@@ -149,7 +149,7 @@
   }
 
   /* ============================================================
-     بخش ۵: حالت نمایش (جدول / کارت)
+     بخش ۵: حالت نمایش
      ============================================================ */
 
   function initViewMode() {
@@ -222,7 +222,7 @@
   }
 
   /* ============================================================
-     بخش ۷: رندر جدول (Table View)
+     بخش ۷: رندر جدول
      ============================================================ */
 
   function renderTableRow(item, cat) {
@@ -245,16 +245,20 @@
     const isCompared = state.compareList.indexOf(id) !== -1;
     const isInCart = isItemInCart(item.n);
 
+    const nameSafe = escapeAttr(item.n);
+    const featSafe = escapeAttr(stripHtml(item.k));
+
     return '<tr>'
       + '<td><div class="compare-check' + (isCompared ? ' checked' : '') + '" data-cmp-id="' + id + '" role="checkbox" aria-label="افزودن به مقایسه" tabindex="0"></div></td>'
       + '<td class="p-cell">'
-        + '<div class="p-name p-focus-trigger" data-focus-id="' + id + '">'
-          + '<span class="copyable" data-copy="' + item.n + '">' + item.n + '</span>'
+        + '<div class="p-name">'
+          + '<span class="copyable" data-copy="' + nameSafe + '">' + item.n + '</span>'
           + badge
+          + '<button type="button" class="focus-btn" data-focus-id="' + id + '" aria-label="مشاهده جزئیات" title="مشاهده جزئیات">👁️</button>'
         + '</div>'
       + '</td>'
       + '<td class="p-feat-cell">'
-        + '<div class="p-feat copyable" data-copy="' + stripHtml(item.k).replace(/"/g, '&quot;') + '">' + item.k + '</div>'
+        + '<div class="p-feat copyable" data-copy="' + featSafe + '">' + item.k + '</div>'
       + '</td>'
       + '<td class="p-price">'
         + '<span class="copyable" data-copy="' + item.p + '">' + priceHtml + '</span>'
@@ -296,7 +300,7 @@
   }
 
   /* ============================================================
-     بخش ۸: رندر کارت (Card View)
+     بخش ۸: رندر کارت
      ============================================================ */
 
   function renderCard(item, cat, index) {
@@ -318,8 +322,7 @@
 
     let imgHtml;
     if (item.img) {
-      imgHtml = '<img class="card-image" src="' + item.img + '" alt="' + item.n + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">'
-        + '<div class="card-image-placeholder" style="display:none;">📦</div>';
+      imgHtml = '<img class="card-image" src="' + item.img + '" alt="' + escapeAttr(item.n) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="card-image-placeholder" style="display:none;">📦</div>';
     } else {
       imgHtml = '<div class="card-image-placeholder">📦</div>';
     }
@@ -356,7 +359,7 @@
   }
 
   /* ============================================================
-     بخش ۹: رندر کارت دسته (خروجی اصلی)
+     بخش ۹: رندر کارت دسته
      ============================================================ */
 
   function renderCategoryCard(cat, itemsOverride) {
@@ -380,7 +383,6 @@
     + '</section>';
   }
 
-  // تیره‌تر یا روشن‌تر کردن رنگ
   function shade(hex, percent) {
     const n = parseInt(hex.slice(1), 16);
     let r = (n >> 16) + percent;
@@ -402,7 +404,6 @@
 
     const q = state.searchTerm.trim().toLowerCase();
 
-    // حالت جستجو
     if (q) {
       const grouped = {};
       const order = [];
@@ -436,7 +437,6 @@
       return;
     }
 
-    // حالت همه
     if (state.activeTab === 'all') {
       let out = '';
       CATEGORIES.forEach(function (cat) {
@@ -447,7 +447,6 @@
       return;
     }
 
-    // حالت یک دسته خاص
     for (let i = 0; i < CATEGORIES.length; i++) {
       if (CATEGORIES[i].id === state.activeTab) {
         content.innerHTML = renderCategoryCard(CATEGORIES[i]);
@@ -507,18 +506,6 @@
     return null;
   }
 
-  function findItemByName(name) {
-    for (let i = 0; i < CATEGORIES.length; i++) {
-      const cat = CATEGORIES[i];
-      for (let j = 0; j < cat.items.length; j++) {
-        if (cat.items[j].n === name) {
-          return { item: cat.items[j], category: cat };
-        }
-      }
-    }
-    return null;
-  }
-
   /* ============================================================
      بخش ۱۳: Focus Mode
      ============================================================ */
@@ -532,12 +519,11 @@
     const base = getBase(item);
     const hasDiff = typeof item.b === 'number';
     const isInCart = isItemInCart(item.n);
-
     const id2 = itemId(item);
 
     let imgHtml;
     if (item.img) {
-      imgHtml = '<img class="focus-image" src="' + item.img + '" alt="' + item.n + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="focus-image-placeholder" style="display:none;">📦</div>';
+      imgHtml = '<img class="focus-image" src="' + item.img + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="focus-image-placeholder" style="display:none;">📦</div>';
     } else {
       imgHtml = '<div class="focus-image-placeholder">📦</div>';
     }
@@ -554,8 +540,8 @@
       + '<div class="focus-cat-badge" style="background:' + cat.color + ';">'
         + (cat.icon || '') + ' ' + cat.name
       + '</div>'
-      + '<h2 class="focus-title copyable" data-copy="' + item.n + '">' + item.n + '</h2>'
-      + '<div class="focus-features copyable" data-copy="' + stripHtml(item.k).replace(/"/g, '&quot;') + '">' + item.k + '</div>'
+      + '<h2 class="focus-title copyable" data-copy="' + escapeAttr(item.n) + '">' + item.n + '</h2>'
+      + '<div class="focus-features copyable" data-copy="' + escapeAttr(stripHtml(item.k)) + '">' + item.k + '</div>'
       + '<div class="focus-prices">'
         + '<div class="focus-price-row">'
           + '<span class="label">قیمت نقدی</span>'
@@ -578,11 +564,13 @@
     body.innerHTML = html;
 
     const modal = document.getElementById('focusModal');
-    modal.classList.add('open');
+    modal.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      modal.classList.add('open');
+    });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
 
-    // اتصال شنوندگان داخل Focus
     attachCopyListeners(body);
     const addBtn = body.querySelector('[data-add-id]');
     if (addBtn) {
@@ -617,10 +605,6 @@
     }
     saveCompare();
     updateCompareUI();
-    // به‌روزرسانی چک‌باکس‌های روی صفحه
-    document.querySelectorAll('[data-cmp-id="' + id + '"]').forEach(function (el) {
-      el.classList.toggle('checked');
-    });
     updateCompareFloating();
   }
 
@@ -633,7 +617,6 @@
   }
 
   function updateCompareUI() {
-    // به‌روزرسانی همه چک‌باکس‌ها
     document.querySelectorAll('[data-cmp-id]').forEach(function (el) {
       const id = el.dataset.cmpId;
       if (state.compareList.indexOf(id) !== -1) {
@@ -675,21 +658,20 @@
 
     if (items.length === 0) return;
 
-    // محاسبه بهترین قیمت برای هایلایت
     let minPrice = Infinity;
     items.forEach(function (f) {
       if (f.item.p < minPrice) minPrice = f.item.p;
     });
 
     let colsHtml = '';
-    items.forEach(function (f, idx) {
+    items.forEach(function (f) {
       const item = f.item;
       const cat = f.category;
       const base = getBase(item);
 
       let imgHtml;
       if (item.img) {
-        imgHtml = '<img src="' + item.img + '" alt="' + item.n + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
+        imgHtml = '<img src="' + item.img + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
       } else {
         imgHtml = '📦';
       }
@@ -730,19 +712,17 @@
     const body = document.getElementById('compareBody');
     body.innerHTML = '<div class="compare-grid">' + colsHtml + '</div>';
 
-    // دکمه‌های حذف
     body.querySelectorAll('[data-cmp-remove]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         toggleCompare(this.dataset.cmpRemove);
         if (state.compareList.length === 0) {
           closeCompare();
         } else {
-          openCompare(); // رندر مجدد
+          openCompare();
         }
       });
     });
 
-    // دکمه‌های افزودن به سبد
     body.querySelectorAll('[data-add-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         addToCartById(this.dataset.addId, this);
@@ -750,7 +730,10 @@
     });
 
     const modal = document.getElementById('compareModal');
-    modal.classList.add('open');
+    modal.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      modal.classList.add('open');
+    });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -763,14 +746,13 @@
   }
 
   /* ============================================================
-     بخش ۱۵: سبد خرید (با پشتیبانی از چند سبد)
+     بخش ۱۵: سبد خرید
      ============================================================ */
 
   function loadCarts() {
     state.carts = load(STORE.carts, {});
     state.currentCartId = load(STORE.activeCart, null);
 
-    // اگر سبد فعلی وجود ندارد، یکی بساز
     if (!state.currentCartId || !state.carts[state.currentCartId]) {
       const newId = 'cart_' + Date.now();
       state.carts[newId] = { name: 'سبد فعلی', items: [] };
@@ -830,18 +812,14 @@
     saveCarts();
     updateCartUI();
 
-    // انیمیشن دکمه
     if (btnEl) {
       btnEl.classList.add('added');
-      const originalText = btnEl.textContent;
       btnEl.textContent = '✓ اضافه شد';
       setTimeout(function () {
-        btnEl.textContent = originalText.includes('در سبد') ? '✓ در سبد' : '+ افزودن';
-        btnEl.classList.remove('added');
+        btnEl.textContent = '✓ در سبد';
       }, 1200);
     }
 
-    // انیمیشن Badge
     const badge = document.getElementById('cartBadge');
     if (badge) {
       badge.classList.remove('bump');
@@ -912,12 +890,10 @@
     const floatingCount = document.getElementById('floatingCount');
     const floatingTotal = document.getElementById('floatingTotal');
 
-    // بج
     if (badge) {
       badge.textContent = faNum(cart.items.length);
     }
 
-    // نوار شناور
     if (floating) {
       if (cart.items.length === 0) {
         floating.classList.add('hidden');
@@ -939,20 +915,20 @@
       floatingTotal.textContent = faNum(totals.cash) + ' تومان';
     }
 
-    // رندر لیست داخل drawer
     renderCartItems();
 
     // به‌روزرسانی دکمه‌های افزودن در جدول/کارت
     document.querySelectorAll('[data-add-id]').forEach(function (btn) {
       const found = findItemById(btn.dataset.addId);
       if (!found) return;
+      const isCard = btn.classList.contains('card-add-btn');
+      const defaultText = isCard ? '+ افزودن به سبد' : '+ افزودن';
       if (isItemInCart(found.item.n)) {
         btn.classList.add('added');
-        if (!btn.textContent.includes('در سبد')) {
-          btn.textContent = btn.textContent.includes('✓') ? '✓ در سبد' : (btn.textContent.includes('کارت') ? '+ افزودن به سبد' : '+ افزودن');
-        }
+        btn.textContent = '✓ در سبد';
       } else {
         btn.classList.remove('added');
+        btn.textContent = defaultText;
       }
     });
   }
@@ -971,21 +947,22 @@
           + '<div class="cart-empty-title">سبد خرید شما خالی است</div>'
           + '<div class="cart-empty-text">برای افزودن، روی دکمه «+ افزودن» کنار هر محصول بزنید.</div>'
         + '</div>';
-      footer.classList.add('hidden');
+      if (footer) footer.classList.add('hidden');
       return;
     }
 
-    footer.classList.remove('hidden');
+    if (footer) footer.classList.remove('hidden');
 
     let html = '';
     cart.items.forEach(function (it) {
       const qty = it.qty || 1;
       let imgHtml;
       if (it.img) {
-        imgHtml = '<img src="' + it.img + '" alt="' + it.n + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
+        imgHtml = '<img src="' + it.img + '" alt="' + escapeAttr(it.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
       } else {
         imgHtml = '📦';
       }
+      const nameSafe = escapeAttr(it.n);
 
       html += '<div class="cart-item">'
         + '<div class="cart-item-image">' + imgHtml + '</div>'
@@ -994,17 +971,16 @@
           + '<div class="cart-item-price">' + faNum(it.p) + ' تومان</div>'
         + '</div>'
         + '<div class="cart-item-actions">'
-          + '<button type="button" class="qty-btn" data-qty-minus="' + it.n.replace(/"/g, '&quot;') + '">−</button>'
+          + '<button type="button" class="qty-btn" data-qty-minus="' + nameSafe + '">−</button>'
           + '<span class="qty-value">' + faNum(qty) + '</span>'
-          + '<button type="button" class="qty-btn" data-qty-plus="' + it.n.replace(/"/g, '&quot;') + '">+</button>'
-          + '<button type="button" class="remove-btn" data-remove="' + it.n.replace(/"/g, '&quot;') + '" aria-label="حذف">🗑️</button>'
+          + '<button type="button" class="qty-btn" data-qty-plus="' + nameSafe + '">+</button>'
+          + '<button type="button" class="remove-btn" data-remove="' + nameSafe + '" aria-label="حذف">🗑️</button>'
         + '</div>'
       + '</div>';
     });
 
     container.innerHTML = html;
 
-    // اتصال event ها
     container.querySelectorAll('[data-qty-plus]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         changeQty(this.dataset.qtyPlus, 1);
@@ -1021,7 +997,6 @@
       });
     });
 
-    // به‌روزرسانی خلاصه
     const totals = getCartTotals();
     setRollingText(document.getElementById('summaryCash'), faNum(totals.cash) + ' تومان');
     setRollingText(document.getElementById('summaryBajet'), faNum(totals.bajet) + ' تومان');
@@ -1046,6 +1021,7 @@
         const cart = state.carts[id];
         const count = cart.items.length;
         const isActive = id === state.currentCartId;
+        const nameSafe = escapeAttr(cart.name);
         html += '<div class="saved-cart-item' + (isActive ? ' active' : '') + '">'
           + '<div class="saved-cart-info" data-cart-switch="' + id + '">'
             + '<div class="saved-cart-name">' + cart.name + '</div>'
@@ -1070,7 +1046,10 @@
       });
     }
 
-    sheet.classList.add('open');
+    sheet.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      sheet.classList.add('open');
+    });
     sheet.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -1105,7 +1084,7 @@
     saveCarts();
     updateCartUI();
     updateCurrentCartName();
-    openSavedCartsSheet(); // رندر مجدد
+    openSavedCartsSheet();
   }
 
   function createNewCart() {
@@ -1182,9 +1161,6 @@
 
     const text = buildSmsText();
     const encoded = encodeURIComponent(text);
-    // استفاده از sms: با body — روی اندروید و iOS کار می‌کند
-    // در iOS از &body= و در اندروید از ?body= استفاده می‌شود
-    // راه استاندارد که در هر دو کار می‌کند:
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const url = isIOS
       ? 'sms:&body=' + encoded
@@ -1200,7 +1176,10 @@
 
   function openCalc() {
     const modal = document.getElementById('calcModal');
-    modal.classList.add('open');
+    modal.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      modal.classList.add('open');
+    });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
     setTimeout(function () {
@@ -1220,7 +1199,6 @@
     if (!input) return;
 
     input.addEventListener('input', function () {
-      // فقط اعداد
       const val = this.value.replace(/[^\d]/g, '');
       this.value = val;
 
@@ -1268,11 +1246,9 @@
     if (!text) return;
 
     const doCopy = function () {
-      // روش مدرن
       if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text);
       }
-      // روش قدیمی
       return new Promise(function (resolve, reject) {
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -1305,12 +1281,15 @@
   }
 
   /* ============================================================
-     بخش ۲۰: Drawer سبد خرید
+     بخش ۲۰: Drawer سبد
      ============================================================ */
 
   function openCartDrawer() {
     const drawer = document.getElementById('cartDrawer');
-    drawer.classList.add('open');
+    drawer.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      drawer.classList.add('open');
+    });
     drawer.setAttribute('aria-hidden', 'false');
     showOverlay();
     updateCurrentCartName();
@@ -1344,7 +1323,6 @@
   }
 
   function hideOverlayIfNoOther() {
-    // اگر هیچ پنل بازی نیست، Overlay را پنهان کن
     const openPanel = document.querySelector('.drawer.open, .modal.open, .bottom-sheet.open');
     if (!openPanel) hideOverlay();
   }
@@ -1364,7 +1342,10 @@
 
   function openAuthorSheet() {
     const sheet = document.getElementById('authorSheet');
-    sheet.classList.add('open');
+    sheet.classList.remove('hidden');
+    requestAnimationFrame(function () {
+      sheet.classList.add('open');
+    });
     sheet.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -1377,11 +1358,10 @@
   }
 
   /* ============================================================
-     بخش ۲۳: اتصال رویدادها به محتوای تولیدشده
+     بخش ۲۳: اتصال رویدادها به محتوا
      ============================================================ */
 
   function attachContentListeners() {
-    // چک‌باکس مقایسه
     document.querySelectorAll('[data-cmp-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
@@ -1397,7 +1377,6 @@
       });
     });
 
-    // دکمه افزودن
     document.querySelectorAll('[data-add-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
@@ -1407,12 +1386,10 @@
       });
     });
 
-    // Focus trigger
     document.querySelectorAll('[data-focus-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
       el.addEventListener('click', function (e) {
-        // اگر روی copyable یا compare یا add کلیک شد، Focus باز نشود
         if (e.target.closest('.copyable') ||
             e.target.closest('[data-add-id]') ||
             e.target.closest('[data-cmp-id]') ||
@@ -1423,7 +1400,6 @@
       });
     });
 
-    // کپی
     attachCopyListeners(document);
   }
 
@@ -1432,49 +1408,63 @@
      ============================================================ */
 
   function initEventListeners() {
-    // تم
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
-    // تغییر حالت نمایش
     document.querySelectorAll('.view-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         setViewMode(this.dataset.view);
       });
     });
 
-    // سبد خرید
-    document.getElementById('cartToggle').addEventListener('click', openCartDrawer);
-    document.getElementById('cartClose').addEventListener('click', closeCartDrawer);
-    document.getElementById('floatingCartBtn').addEventListener('click', openCartDrawer);
-    document.getElementById('clearCartBtn').addEventListener('click', clearCart);
-    document.getElementById('smsCartBtn').addEventListener('click', sendSms);
-    document.getElementById('saveCartBtn').addEventListener('click', renameCurrentCart);
+    const cartToggle = document.getElementById('cartToggle');
+    if (cartToggle) cartToggle.addEventListener('click', openCartDrawer);
 
-    // سبدهای ذخیره‌شده
-    document.getElementById('savedCartsCurrent').addEventListener('click', openSavedCartsSheet);
-    document.getElementById('newCartBtn').addEventListener('click', createNewCart);
+    const cartClose = document.getElementById('cartClose');
+    if (cartClose) cartClose.addEventListener('click', closeCartDrawer);
 
-    // مقایسه
-    document.getElementById('compareFloating').addEventListener('click', openCompare);
-    document.getElementById('floatingCompareBtn').addEventListener('click', openCompare);
-    document.getElementById('compareClose').addEventListener('click', closeCompare);
+    const floatingCartBtn = document.getElementById('floatingCartBtn');
+    if (floatingCartBtn) floatingCartBtn.addEventListener('click', openCartDrawer);
 
-    // Focus
-    document.getElementById('focusClose').addEventListener('click', closeFocus);
+    const clearCartBtn = document.getElementById('clearCartBtn');
+    if (clearCartBtn) clearCartBtn.addEventListener('click', clearCart);
 
-    // ماشین‌حساب
-    document.getElementById('floatingCalcBtn').addEventListener('click', openCalc);
-    document.getElementById('calcClose').addEventListener('click', closeCalc);
+    const smsCartBtn = document.getElementById('smsCartBtn');
+    if (smsCartBtn) smsCartBtn.addEventListener('click', sendSms);
 
-    // طراح
-    document.getElementById('designerLink').addEventListener('click', openAuthorSheet);
+    const saveCartBtn = document.getElementById('saveCartBtn');
+    if (saveCartBtn) saveCartBtn.addEventListener('click', renameCurrentCart);
 
-    // Overlay
-    document.getElementById('overlay').addEventListener('click', function () {
-      closeAllPanels();
-    });
+    const savedCartsCurrent = document.getElementById('savedCartsCurrent');
+    if (savedCartsCurrent) savedCartsCurrent.addEventListener('click', openSavedCartsSheet);
 
-    // Esc برای بستن
+    const newCartBtn = document.getElementById('newCartBtn');
+    if (newCartBtn) newCartBtn.addEventListener('click', createNewCart);
+
+    const compareFloating = document.getElementById('compareFloating');
+    if (compareFloating) compareFloating.addEventListener('click', openCompare);
+
+    const floatingCompareBtn = document.getElementById('floatingCompareBtn');
+    if (floatingCompareBtn) floatingCompareBtn.addEventListener('click', openCompare);
+
+    const compareClose = document.getElementById('compareClose');
+    if (compareClose) compareClose.addEventListener('click', closeCompare);
+
+    const focusClose = document.getElementById('focusClose');
+    if (focusClose) focusClose.addEventListener('click', closeFocus);
+
+    const floatingCalcBtn = document.getElementById('floatingCalcBtn');
+    if (floatingCalcBtn) floatingCalcBtn.addEventListener('click', openCalc);
+
+    const calcClose = document.getElementById('calcClose');
+    if (calcClose) calcClose.addEventListener('click', closeCalc);
+
+    const designerLink = document.getElementById('designerLink');
+    if (designerLink) designerLink.addEventListener('click', openAuthorSheet);
+
+    const overlay = document.getElementById('overlay');
+    if (overlay) overlay.addEventListener('click', closeAllPanels);
+
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeAllPanels();
     });
@@ -1485,43 +1475,20 @@
      ============================================================ */
 
   function init() {
-    // تم
     initTheme();
-
-    // حالت نمایش
     initViewMode();
-
-    // سبدها
     loadCarts();
-
-    // مقایسه
     loadCompare();
-
-    // تب‌ها
     renderTabs();
-
-    // محتوا
     renderContent();
-
-    // جستجو
     initSearch();
-
-    // ماشین‌حساب
     initCalc();
-
-    // رویدادها
     initEventListeners();
-
-    // به‌روزرسانی سبد
     updateCartUI();
     updateCurrentCartName();
     updateCompareFloating();
-
-    // نام سبد
-    updateCurrentCartName();
   }
 
-  // اجرا وقتی DOM آماده شد
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
