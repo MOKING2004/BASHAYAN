@@ -98,9 +98,7 @@
     </button>
   </div>
 
-  <div class="drawer-body" id="cartItems">
-    <!-- اقلام سبد توسط app.js تزریق می‌شوند -->
-  </div>
+  <div class="drawer-body" id="cartItems"></div>
 
   <div class="drawer-footer" id="cartFooter">
     <div class="summary-row">
@@ -204,5 +202,57 @@
 
 <script src="data.js"></script>
 <script src="app.js"></script>
+
+<!-- ===================== SERVICE WORKER ===================== -->
+<script>
+  // ثبت Service Worker برای PWA و حالت آفلاین
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js')
+        .then(function (reg) {
+          console.log('✓ Service Worker ثبت شد. محدوده:', reg.scope);
+
+          // بررسی آپدیت‌های جدید
+          reg.addEventListener('updatefound', function () {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener('statechange', function () {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // نسخه جدید آماده است
+                console.log('🔄 نسخه جدید اپ آماده است. صفحه را رفرش کنید.');
+              }
+            });
+          });
+        })
+        .catch(function (err) {
+          console.warn('✗ Service Worker ثبت نشد:', err);
+        });
+    });
+  }
+
+  // مدیریت لینک‌های میانبر PWA (shortcuts)
+  document.addEventListener('DOMContentLoaded', function () {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+
+    if (action === 'cart') {
+      // باز کردن سبد خرید
+      setTimeout(function () {
+        const btn = document.getElementById('cartToggle');
+        if (btn) btn.click();
+      }, 500);
+    }
+
+    if (action === 'calc') {
+      // باز کردن ماشین‌حساب
+      setTimeout(function () {
+        const btn = document.getElementById('floatingCalcBtn');
+        if (btn) btn.click();
+      }, 500);
+    }
+  });
+</script>
+
 </body>
 </html>
