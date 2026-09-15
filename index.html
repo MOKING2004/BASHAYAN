@@ -2,608 +2,207 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>لیست محصولات فروشگاه باشیان</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="لیست محصولات فروشگاه لوازم خانگی باشایان — نسخه فروشنده">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="باشایان">
+<meta name="mobile-web-app-capable" content="yes">
+<title>باشایان | لیست محصولات</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+<link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  :root{
-    --bg:#f1f5f9; --card:#fff; --ink:#0f172a; --muted:#64748b;
-    --line:#e2e8f0; --accent:#0ea5e9;
-  }
-  html,body{overflow-x:hidden}
-  body{
-    font-family:'Vazirmatn',Tahoma,sans-serif;
-    background:var(--bg); color:var(--ink); font-size:14px;
-    line-height:1.7; padding:10px;
-  }
-  .wrap{max-width:1280px;margin:0 auto}
-
-  .hero{
-    background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
-    color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:12px;
-    box-shadow:0 8px 24px rgba(15,23,42,.15);
-  }
-  .hero h1{font-size:18px;font-weight:800;margin-bottom:3px}
-  .hero p{font-size:12px;opacity:.85;margin-bottom:12px}
-  .hero .search-wrap{position:relative;max-width:100%}
-  .hero input{
-    width:100%;padding:11px 14px;border-radius:10px;border:none;
-    background:rgba(255,255,255,.12);color:#fff;font-size:13px;
-    font-family:inherit;outline:none;transition:.2s;
-  }
-  .hero input::placeholder{color:rgba(255,255,255,.5)}
-  .hero input:focus{background:rgba(255,255,255,.2);box-shadow:0 0 0 3px rgba(14,165,233,.35)}
-
-  .tabs{
-    display:flex;gap:7px;overflow-x:auto;padding:4px 2px 12px;
-    scrollbar-width:thin;-webkit-overflow-scrolling:touch;
-  }
-  .tabs::-webkit-scrollbar{height:5px}
-  .tabs::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-  .tab{
-    flex-shrink:0;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);
-    background:#fff;color:#334155;font-size:12px;font-weight:600;
-    cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;
-  }
-  .tab:hover{border-color:#94a3b8}
-  .tab.active{color:#fff!important;border-color:transparent;box-shadow:0 4px 12px rgba(0,0,0,.15)}
-  .tab .cnt{
-    display:inline-block;background:rgba(0,0,0,.06);
-    padding:1px 7px;border-radius:20px;font-size:10px;margin-inline-start:5px;
-  }
-  .tab.active .cnt{background:rgba(255,255,255,.28)}
-
-  .card{
-    background:var(--card);border-radius:12px;overflow:hidden;
-    box-shadow:0 3px 14px rgba(15,23,42,.06);margin-bottom:20px;
-  }
-  .card-head{
-    padding:12px 16px;color:#fff;display:flex;justify-content:space-between;
-    align-items:center;flex-wrap:wrap;gap:6px;
-  }
-  .card-head h2{font-size:14.5px;font-weight:800}
-  .card-head .stats{font-size:11px;background:rgba(255,255,255,.22);
-    padding:2px 10px;border-radius:20px;font-weight:600}
-
-  .table-scroll{
-    overflow-x:auto;overflow-y:hidden;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:thin;
-  }
-  .table-scroll::-webkit-scrollbar{height:6px}
-  .table-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-  .table-scroll::-webkit-scrollbar-track{background:#f1f5f9}
-
-  table{width:100%;min-width:760px;border-collapse:collapse;font-size:12.5px}
-  thead th{
-    background:#f8fafc;color:#334155;font-size:11px;font-weight:700;
-    text-align:right;padding:9px 10px;border-bottom:2px solid var(--line);
-    white-space:nowrap;position:sticky;top:0;z-index:2;
-  }
-  tbody td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-  tbody tr:hover{background:#fafbfc}
-  tbody tr:last-child td{border-bottom:none}
-
-  .p-name{font-weight:600;font-size:12.5px;line-height:1.5;min-width:180px}
-  .p-feat{font-size:11px;color:#475569;line-height:1.8;min-width:220px}
-  .p-feat b{color:#0f172a;font-weight:700}
-  .p-price{font-weight:800;font-size:13px;white-space:nowrap;
-    font-variant-numeric:tabular-nums;color:#0f172a}
-  .p-price .old{
-    display:block;font-size:10px;color:#94a3b8;
-    text-decoration:line-through;font-weight:500;
-  }
-  .p-bajet{font-weight:700;color:#0f766e;font-size:12px;white-space:nowrap;
-    font-variant-numeric:tabular-nums}
-  .p-avand{font-weight:700;color:#9a3412;font-size:12px;white-space:nowrap;
-    font-variant-numeric:tabular-nums}
-  .p-bajet small,.p-avand small{display:block;color:#94a3b8;
-    font-weight:500;font-size:9.5px;margin-top:1px}
-
-  .badge{
-    display:inline-block;font-size:9px;font-weight:700;
-    padding:1px 6px;border-radius:20px;margin-inline-start:4px;
-    vertical-align:middle;background:#fef3c7;color:#92400e;
-  }
-
-  .search-title{
-    background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
-    padding:9px 14px;border-radius:9px;margin-bottom:12px;
-    font-size:12px;font-weight:600;
-  }
-
-  .footer{
-    text-align:center;color:var(--muted);font-size:11px;
-    padding:14px;line-height:2;
-  }
-  .footer a{color:var(--accent);text-decoration:none;font-weight:600}
-
-  @media (max-width:640px){
-    body{padding:6px}
-    .hero{padding:14px 16px;border-radius:12px}
-    .hero h1{font-size:15px}
-    .hero p{font-size:10.5px}
-    .hero input{font-size:12px;padding:10px 12px}
-    .card-head{padding:10px 12px}
-    .card-head h2{font-size:13px}
-    table{min-width:680px;font-size:11.5px}
-    thead th{font-size:10px;padding:7px 8px}
-    tbody td{padding:7px 8px}
-    .p-name{font-size:11.5px;min-width:150px}
-    .p-feat{font-size:10px;min-width:180px}
-    .p-price{font-size:12px}
-    .p-bajet,.p-avand{font-size:11px}
-  }
-
-  @media print{
-    body{background:#fff;padding:0;font-size:9.5px}
-    .wrap{max-width:none}
-    .hero{background:#0f172a!important;border-radius:0;padding:10px 14px;
-      -webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .hero h1{font-size:13px}.hero p{font-size:8.5px;margin-bottom:0}
-    .hero .search-wrap{display:none}
-    .tabs{display:none}
-    .card{box-shadow:none;border-radius:0;margin-bottom:6px;page-break-inside:avoid}
-    .card-head{padding:6px 10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .card-head h2{font-size:10.5px}
-    .table-scroll{overflow:visible}
-    table{font-size:8px;min-width:0}
-    thead th{font-size:7.5px;padding:4px 6px;position:static}
-    tbody td{padding:4px 6px}
-    thead{display:table-header-group}
-    tr{page-break-inside:avoid}
-    .badge,.p-price .old{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    @page{size:A4 landscape;margin:6mm}
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
 
-  <header class="hero">
-    <h1>لیست محصولات فروشگاه باشیان</h1>
-    <p>قیمت‌ها به تومان · اقساط ۲۴ ماهه باجت و ۱۸ ماهه آوند</p>
-    <div class="search-wrap">
-      <input type="search" id="searchInput" placeholder="جستجو: تلویزیون، ۲۴۰۰۰، لباسشویی، اسپایدر...">
+<!-- ===================== HEADER ===================== -->
+<header class="app-header" id="appHeader">
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true">🛍️</div>
+      <div class="brand-text">
+        <h1>باشایان</h1>
+        <span class="brand-badge">نسخه فروشنده</span>
+      </div>
     </div>
-  </header>
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="themeToggle" aria-label="تغییر حالت شب و روز">
+        <span class="icon-sun" aria-hidden="true">☀️</span>
+        <span class="icon-moon" aria-hidden="true">🌙</span>
+      </button>
+      <button type="button" class="icon-btn cart-icon-btn" id="cartToggle" aria-label="سبد خرید">
+        <span class="cart-icon" aria-hidden="true">🛒</span>
+        <span class="cart-badge" id="cartBadge">۰</span>
+      </button>
+    </div>
+  </div>
+  <div class="header-search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="search" id="searchInput" placeholder="جستجوی محصول..." autocomplete="off" enterkeyhint="search">
+    <button type="button" class="search-clear hidden" id="searchClear" aria-label="پاک کردن جستجو">✕</button>
+  </div>
+</header>
 
-  <nav class="tabs" id="tabs"></nav>
-  <main id="content"></main>
+<!-- ===================== TABS + VIEW TOGGLE ===================== -->
+<nav class="tabs-wrap" id="tabsWrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="view-toggle" id="viewToggle" role="group" aria-label="تغییر نمای نمایش">
+    <button type="button" class="view-btn active" data-view="table" aria-label="نمای جدول">
+      <span aria-hidden="true">☰</span>
+    </button>
+    <button type="button" class="view-btn" data-view="card" aria-label="نمای کارت">
+      <span aria-hidden="true">▦</span>
+    </button>
+  </div>
+</nav>
 
-  <footer class="footer">
-    <div>فروشگاه باشیان — <a href="https://bashayan.ir">bashayan.ir</a></div>
-    <div>قیمت‌ها به تومان · اقساط باجت (۲۴ ماهه) و آوند (۱۸ ماهه) · قیمت‌ها ممکن است بدون اطلاع قبلی تغییر کنند.</div>
-  </footer>
+<!-- ===================== MAIN CONTENT ===================== -->
+<main class="main" id="mainContent">
+  <div id="content"></div>
+</main>
 
+<!-- ===================== FLOATING BAR (CART SUMMARY) ===================== -->
+<div class="floating-bar hidden" id="floatingBar" role="region" aria-label="خلاصه سبد">
+  <div class="floating-info">
+    <span class="floating-count" id="floatingCount">۰ محصول</span>
+    <span class="floating-total" id="floatingTotal">۰ تومان</span>
+  </div>
+  <div class="floating-actions">
+    <button type="button" class="floating-btn primary" id="floatingCartBtn">مشاهده سبد</button>
+    <button type="button" class="floating-btn" id="floatingCompareBtn">مقایسه</button>
+    <button type="button" class="floating-btn icon-only" id="floatingCalcBtn" aria-label="ماشین‌حساب">🧮</button>
+  </div>
 </div>
 
-<script>
-var CATEGORIES = [
-  {
-    id:'ref', name:'یخچال', color:'#0d6efd',
-    items:[
-      {n:'یخچال ۶ فوت مدل R06 دیفراست', k:'<b>۶ فوت</b> · حجم ۱۱۱ لیتر · ابعاد ۸۸×۵۵×۵۰ سانتی‌متر · رتبه انرژی B · دیفراست · جایخی', p:45000000},
-      {n:'یخچال ۵ فوت مدل lior5 سفید و سیلور', k:'<b>۵ فوت</b> · حجم ۹۰ لیتر · ابعاد ۸۵×۵۰×۴۵ سانتی‌متر · رتبه انرژی A · کم‌مصرف · دو رنگ سفید/سیلور', p:56100000},
-      {n:'یخچال شوکیس ۵ فوت لایف', k:'شوکیس · <b>۵ فوت</b> · درب شیشه‌ای · حجم ۱۰۰ لیتر · ابعاد ۸۵×۵۰×۵۰ سانتی‌متر · رتبه انرژی B · نمایش محصول', p:80300000}
-    ]
-  },
-  {
-    id:'combi', name:'یخچال فریزر کمبی', color:'#2563eb',
-    items:[
-      {n:'کمبی ۷۰۲۷ سفید لایف', k:'کمبی · حجم کل ۳۰۰ لیتر · بدون برفک (No Frost) · رتبه انرژی A+ · ابعاد ۱۸۰×۶۰×۶۵ سانتی‌متر · طبقات شیشه‌ای', p:136180000},
-      {n:'کمبی ۷۰۲۷ تیتان لایف', k:'کمبی · حجم کل ۳۰۰ لیتر · بدون برفک · رتبه انرژی A+ · ابعاد ۱۸۰×۶۰×۶۵ سانتی‌متر · گاز مبرد R600a', p:139500000},
-      {n:'کمبی ۷۰۰۰ سفید لایف', k:'کمبی · حجم کل ۳۲۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۸۵×۶۰×۶۵ سانتی‌متر · فریزر پایین', p:177700000},
-      {n:'کمبی ۷۰۰۰ استیل لایف', k:'کمبی · حجم کل ۳۲۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۸۵×۶۰×۶۵ سانتی‌متر · فریزر پایین', p:179000000},
-      {n:'کمبی لنیا استیل لایف', k:'کمبی · حجم کل ۳۳۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۸۵×۶۰×۶۸ سانتی‌متر · فریزر پایین', p:184000000},
-      {n:'کمبی نوژان سفید لایف', k:'کمبی · حجم کل ۳۲۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۸۵×۶۰×۶۵ سانتی‌متر · فریزر پایین', p:185000000},
-      {n:'کمبی کومو سفید', k:'کمبی · حجم کل ۳۵۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۹۰×۶۰×۶۸ سانتی‌متر · فریزر پایین', p:197200000},
-      {n:'کمبی کومو سیلور', k:'کمبی · حجم کل ۳۵۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۹۰×۶۰×۶۸ سانتی‌متر · فریزر پایین', p:210500000},
-      {n:'کمبی ۲۸۰۵ استیل لایف', k:'کمبی · حجم کل ۳۸۰ لیتر · بدون برفک · رتبه انرژی A++ · ابعاد ۱۹۵×۶۵×۷۰ سانتی‌متر · فریزر پایین', p:239000000},
-      {n:'کمبی اپتیما سفید چرمی لایف', k:'کمبی · حجم کل ۳۵۰ لیتر · بدون برفک · رتبه انرژی A++ · بدنه چرمی · ابعاد ۱۹۰×۶۰×۶۸ سانتی‌متر', p:247600000},
-      {n:'کمبی اپتیما تیتان لایف', k:'کمبی · حجم کل ۳۵۰ لیتر · بدون برفک · رتبه انرژی A++ · بدنه تیتان · ابعاد ۱۹۰×۶۰×۶۸ سانتی‌متر', p:259322000}
-    ]
-  },
-  {
-    id:'twin', name:'یخچال فریزر دوقلو', color:'#1d4ed8',
-    items:[
-      {n:'دوقلو مکس پلاس آبریزدار سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · آبریزدار · یخساز دستی · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:287000000},
-      {n:'دوقلو مکس پلاس آبریزدار استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · آبریزدار · یخساز دستی · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:296800000},
-      {n:'دوقلو مکس پلاس هومباردار سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · هومبار (آبسردکن) · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:298000000},
-      {n:'دوقلو گلاریوس سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:299540000},
-      {n:'دوقلو گلاریوس استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:307340000},
-      {n:'دوقلو گلوریا استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:307340000},
-      {n:'دوقلو گلورین تیتانیوم لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · بدون برفک · تیتانیوم · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:307340000},
-      {n:'دوقلو مکس پلاس هومباردار استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · هومبار · استیل · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:318600000},
-      {n:'دوقلو گلوریا سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۵۰ + فریزر ۲۵۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۰×۷۰×۷۰ سانتی‌متر', p:326000000},
-      {n:'دوقلو گلاریوس پلاس سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · نسل جدید · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:328800000},
-      {n:'دوقلو گلاریوس پلاس استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · نسل جدید · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:340800000},
-      {n:'دوقلو ونیز سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:352000000},
-      {n:'دوقلو ونیز استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · کم‌مصرف · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:372200000},
-      {n:'دوقلو ویتو vito سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · مدرن · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:373300000},
-      {n:'دوقلو میلان سفید لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۷۰ + فریزر ۲۷۰ لیتر · لوکس · رتبه A++ · ابعاد ۱۹۰×۷۵×۷۰ سانتی‌متر', p:382500000},
-      {n:'دوقلو ویتو vito استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۶۰ + فریزر ۲۶۰ لیتر · مدرن · رتبه A++ · ابعاد ۱۸۵×۷۰×۷۰ سانتی‌متر', p:391300000},
-      {n:'دوقلو میلان استیل لایف', k:'<b>دوقلو</b> · حجم یخچال ۳۷۰ + فریزر ۲۷۰ لیتر · لوکس · رتبه A++ · ابعاد ۱۹۰×۷۵×۷۰ سانتی‌متر', p:399900000}
-    ]
-  },
-  {
-    id:'freezer', name:'فریزر', color:'#3b82f6',
-    items:[
-      {n:'فریزر صندوقی ۳۴۰ سفید لایف', k:'فریزر صندوقی · <b>حجم ۳۴۰ لیتر</b> · ابعاد ۸۵×۱۲۰×۶۰ سانتی‌متر · کم‌مصرف · رتبه A+ · درب صندوقی', p:90600000}
-    ]
-  },
-  {
-    id:'side', name:'ساید بای ساید', color:'#0891b2',
-    items:[
-      {n:'ساید ۳۳۱۰ سفید لایف', k:'ساید · حجم کل ۶۰۰ لیتر · آبریز · ابعاد ۱۷۸×۹۰×۷۵ سانتی‌متر · رتبه A+ · بدون برفک', p:287100000},
-      {n:'ساید ۳۳۱۰ استیل لایف', k:'ساید · حجم کل ۶۰۰ لیتر · آبریز · ابعاد ۱۷۸×۹۰×۷۵ سانتی‌متر · رتبه A+ · بدون برفک', p:298000000},
-      {n:'ساید ۲۷۱۰ door4 سفید متالیک لایف', k:'ساید · <b>۴ درب</b> · حجم کل ۶۵۰ لیتر · آبریز · ابعاد ۱۸۰×۹۰×۷۵ سانتی‌متر · بدون برفک', p:311420000},
-      {n:'ساید ۲۷۱۰ door4 استیل لایف', k:'ساید · <b>۴ درب</b> · حجم کل ۶۵۰ لیتر · آبریز · ابعاد ۱۸۰×۹۰×۷۵ سانتی‌متر · بدون برفک', p:321400000},
-      {n:'ساید ۳۲۰۰ آبریز اتومات ۳۲ فوت سفید لایف', k:'ساید · <b>۳۲ فوت</b> · حجم کل ۷۰۰ لیتر · آبریز اتومات · اینورتر · ابعاد ۱۸۵×۹۵×۷۵ سانتی‌متر', p:432000000},
-      {n:'ساید ۳۲۰۰ آبریز اتومات ۳۲ فوت استیل', k:'ساید · <b>۳۲ فوت</b> · حجم کل ۷۰۰ لیتر · آبریز اتومات · اینورتر · ابعاد ۱۸۵×۹۵×۷۵ سانتی‌متر', p:442000000}
-    ]
-  },
-  {
-    id:'stove', name:'اجاق گاز', color:'#ea580c',
-    items:[
-      {n:'اجاق گاز طرح فر ۴۱۰ (۴ شعله)', k:'طرح فر · <b>۴ شعله</b> · سفید مشکی تیتان · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر · ترموکوپل', p:38300000},
-      {n:'اجاق گاز طرح فر ۴۲۰ (۴ شعله)', k:'طرح فر · <b>۴ شعله</b> · سفید مشکی تیتان · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر · ترموکوپل', p:40200000},
-      {n:'اجاق گاز صفحه‌ای ۵۲۲۲ (۵ شعله)', k:'صفحه‌ای · شیشه سکوریت · <b>۵ شعله</b> · فندک اتوماتیک · ابعاد ۵۲×۹۰ سانتی‌متر', p:41400000},
-      {n:'اجاق گاز صفحه‌ای ۵۲۲۳ (۵ شعله)', k:'صفحه‌ای · شیشه سکوریت · <b>۵ شعله</b> · فندک اتوماتیک · ابعاد ۵۲×۹۰ سانتی‌متر', p:43300000},
-      {n:'اجاق گاز صفحه‌ای ۵۲۲۴ (۵ شعله)', k:'صفحه‌ای · شیشه سکوریت · <b>۵ شعله</b> · فندک اتوماتیک · ابعاد ۵۲×۹۰ سانتی‌متر', p:43400000},
-      {n:'اجاق گاز صفحه‌ای ۹۲۲۲ (۵ شعله استیل)', k:'صفحه‌ای · استیل · <b>۵ شعله</b> · ترموکوپل · توان شعله بزرگ ۲.۷۵ کیلووات · ابعاد ۵۲×۹۰ سانتی‌متر', p:44800000},
-      {n:'اجاق گاز صفحه‌ای ۹۲۳۳ (۵ شعله استیل)', k:'صفحه‌ای · استیل · <b>۵ شعله</b> · ترموکوپل · توان شعله بزرگ ۲.۷۵ کیلووات · ابعاد ۵۲×۹۰ سانتی‌متر', p:49700000},
-      {n:'اجاق گاز طرح فر ۵۲۱ (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · سفیدتیتان · ترموکوپل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:50300000},
-      {n:'اجاق گاز طرح فر ۵۸۸ (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · سفید مشکی تیتان · ترموکوپل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:50600000},
-      {n:'اجاق گاز طرح فر ۵۹۸ (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · سفید مشکی تیتان · ترموکوپل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:50800000},
-      {n:'اجاق گاز طرح فر ۵۴۲ (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · بدنه تیتانیوم · نما استیل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:52000000},
-      {n:'اجاق گاز طرح فر ۵۸۲ دیجیتال (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · دیجیتال · تایمر · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:52000000},
-      {n:'اجاق گاز طرح فر ۵۰۱ (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · سفید/مشکی/سیلور · ترموکوپل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:52100000},
-      {n:'اجاق گاز طرح فر ۵۱۲ صفحه شیشه‌ای (۵ شعله)', k:'طرح فر · <b>۵ شعله</b> · صفحه شیشه‌ای · ترموکوپل · ابعاد ۵۰×۹۰×۸۵ سانتی‌متر', p:53700000}
-    ]
-  },
-  {
-    id:'hood', name:'هود', color:'#d97706',
-    items:[
-      {n:'هود شیشه‌ای ۸۷۰ لمسی (شومینه‌ای تک شیشه)', k:'هود شیشه‌ای · لمسی · شومینه‌ای تک شیشه · توان مکش ۷۵۰ مترمکعب · ابعاد ۶۰×۹۰ سانتی‌متر', p:21900000},
-      {n:'هود شیشه‌ای ۸۶۰ مخفی جک‌دار (زیر کابینتی)', k:'هود شیشه‌ای · مخفی جک‌دار · زیر کابینتی · توان مکش ۷۵۰ مترمکعب · ابعاد ۶۰×۹۰ سانتی‌متر', p:23000000},
-      {n:'هود شیشه‌ای ۸۸۰ توربو لمسی منحنی (دو شیشه)', k:'هود شیشه‌ای · توربو · لمسی منحنی · دو شیشه · توان مکش ۱۰۰۰ مترمکعب', p:25300000}
-    ]
-  },
-  {
-    id:'oven', name:'فر و مایکروویو', color:'#dc2626',
-    items:[
-      {n:'مایکروویو li-mv32 مشکی لایف', k:'مایکروویو · حجم ۳۲ لیتر · توان ۱۰۰۰ وات · گریل · مشکی · ابعاد ۵۰×۳۰×۴۰ سانتی‌متر', p:38390000},
-      {n:'مایکروویو li-mv32 سفید لایف', k:'مایکروویو · حجم ۳۲ لیتر · توان ۱۰۰۰ وات · گریل · سفید · ابعاد ۵۰×۳۰×۴۰ سانتی‌متر', p:43000000},
-      {n:'فرتوکار ۷۵ لیتری شیشه لایف', k:'فرتوکار · <b>حجم ۷۵ لیتر</b> · گریل · شیشه · ابعاد ۶۰×۶۰×۵۵ سانتی‌متر · ترموستات', p:75900000},
-      {n:'فرتوکار ۷۵ لیتری استیل لایف', k:'فرتوکار · <b>حجم ۷۵ لیتر</b> · گریل · استیل · ابعاد ۶۰×۶۰×۵۵ سانتی‌متر · ترموستات', p:81400000},
-      {n:'فرتوکار ۷۶ لیتری ضدزنگ بوش HIG852YSO', k:'فرتوکار · <b>حجم ۷۶ لیتر</b> · ضدزنگ · بوش · گریل · ابعاد ۶۰×۶۰×۵۵ سانتی‌متر', p:200000000, b:331500000, badge:true},
-      {n:'مایکروفر بوش BEL-554MB2', k:'مایکروفر · حجم ۲۵ لیتر · گریل · بوش · ابعاد ۵۰×۳۰×۴۰ سانتی‌متر · توان ۹۰۰ وات', p:210500000},
-      {n:'فرتوکار سری ۶ بوش با قابلیت fry', k:'فرتوکار · سری ۶ · بوش · قابلیت fry · حجم ۷۰ لیتر · گریل', p:331500000}
-    ]
-  },
-  {
-    id:'washer', name:'لباسشویی', color:'#0d9488',
-    items:[
-      {n:'مینی واش ساده ۳.۵ کیلو LI3500 لایف', k:'مینی واش ساده · <b>ظرفیت ۳.۵ کیلو</b> · کم‌جا · درب از بالا · موتور ۳۰۰ وات · ابعاد ۶۰×۴۰×۴۰ سانتی‌متر', p:20500000},
-      {n:'مینی واش دیجیتال ۳.۵ کیلو LI3500 لایف', k:'مینی واش دیجیتال · <b>ظرفیت ۳.۵ کیلو</b> · درب از بالا · نمایشگر · موتور ۳۰۰ وات', p:21600000},
-      {n:'لباسشویی ۴.۵ کیلو LI4500 لایف', k:'لباسشویی · <b>ظرفیت ۴.۵ کیلو</b> · درب از بالا · موتور ۴۰۰ وات · ابعاد ۸۰×۵۰×۵۰ سانتی‌متر', p:37000000},
-      {n:'لباسشویی دو قلو ۱۲ کیلویی ۱۲۰۰۰ لایف', k:'<b>دو قلو</b> · <b>ظرفیت ۱۲ کیلو</b> · خشک‌کن مجزا · موتور ۵۰۰ وات · ابعاد ۱۰۰×۶۰×۶۰ سانتی‌متر', p:50200000},
-      {n:'لباسشویی دوو LM-9120W سفید', k:'دوو · <b>ظرفیت ۹ کیلو</b> · ۱۴۰۰ دور · موتور BLDC · رتبه A+++ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر · سفید', p:101000000, b:236000000, badge:true},
-      {n:'لباسشویی رزالین ۷ کیلو سفید', k:'رزالین · <b>ظرفیت ۷ کیلو</b> · ۱۲۰۰ دور · تسمه‌ای · درب بزرگ · سفید', p:137500000},
-      {n:'لباسشویی رزالین ۷ کیلو تیتان', k:'رزالین · <b>ظرفیت ۷ کیلو</b> · ۱۲۰۰ دور · تسمه‌ای · درب بزرگ · تیتان', p:140000000},
-      {n:'لباسشویی آلیس ۸ کیلو سفید', k:'آلیس · <b>ظرفیت ۸ کیلو</b> · تسمه‌ای · درب بزرگ · ۱۲۰۰ دور · سفید', p:163500000},
-      {n:'لباسشویی آلیس ۸ کیلو سیلور', k:'آلیس · <b>ظرفیت ۸ کیلو</b> · تسمه‌ای · درب بزرگ · ۱۲۰۰ دور · سیلور', p:166000000},
-      {n:'لباسشویی ولز ۹ کیلو سیلور لایف', k:'ولز · <b>ظرفیت ۹ کیلو</b> · ۱۴۰۰ دور · ۱۶ برنامه · رتبه A++ · سیلور', p:203000000},
-      {n:'لباسشویی ولز ۹ کیلو سفید لایف', k:'ولز · <b>ظرفیت ۹ کیلو</b> · ۱۴۰۰ دور · ۱۶ برنامه · رتبه A++ · سفید', p:210000000},
-      {n:'لباسشویی Walton W سفید لایف', k:'Walton W · <b>ظرفیت ۹ کیلو</b> · ۱۴۰۰ دور · رتبه A++ · سفید', p:220000000},
-      {n:'لباسشویی Walton S سیلور لایف', k:'Walton S · <b>ظرفیت ۹ کیلو</b> · ۱۴۰۰ دور · رتبه A++ · سیلور', p:222600000},
-      {n:'لباسشویی ۹ کیلو توکار بوش WGK2242XME', k:'بوش · <b>ظرفیت ۹ کیلو توکار</b> · ۱۴۰۰ دور · رتبه A+++', p:441500000}
-    ]
-  },
-  {
-    id:'dish', name:'ظرفشویی', color:'#059669',
-    items:[
-      {n:'ظرفشویی ۱۵۹۰۰ سفید لایف', k:'ظرفشویی · <b>ظرفیت ۱۴ نفره</b> · سفید · ۶ برنامه · رتبه A+ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:148600000},
-      {n:'ظرفشویی ۱۵۷۰۰ استیل لایف', k:'ظرفشویی · <b>ظرفیت ۱۴ نفره</b> · استیل · ۶ برنامه · رتبه A+ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:151400000},
-      {n:'ظرفشویی ۱۵۹۰۰ استیل لایف', k:'ظرفشویی · <b>ظرفیت ۱۴ نفره</b> · استیل · ۶ برنامه · رتبه A+ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:151500000},
-      {n:'ظرفشویی ۱۵۷۰۰ سفید لایف', k:'ظرفشویی · <b>ظرفیت ۱۴ نفره</b> · سفید · ۶ برنامه · رتبه A+ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:172000000},
-      {n:'ظرفشویی ۱۵۸۸۸ سفید لایف', k:'ظرفشویی · <b>ظرفیت ۱۵ نفره</b> · سفید · ۸ برنامه · رتبه A++ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:183100000},
-      {n:'ظرفشویی ۱۵۸۸۸ سیلور لایف', k:'ظرفشویی · <b>ظرفیت ۱۵ نفره</b> · سیلور · ۸ برنامه · رتبه A++ · ابعاد ۸۵×۶۰×۶۰ سانتی‌متر', p:185400000},
-      {n:'ظرفشویی ۱۴ نفره توکار بوش SMV8YCX02EA', k:'بوش · <b>ظرفیت ۱۴ نفره توکار</b> · ۶ برنامه · رتبه A++', p:518500000}
-    ]
-  },
-  {
-    id:'polo', name:'پلوپز', color:'#65a30d',
-    items:[
-      {n:'پلوپز LI-FSR803 استیل مشکی لایف', k:'پلوپز · آرام‌پز · بخارپز · <b>ظرفیت ۱۲ نفره</b> · دیجیتال · ۲۶ برنامه · ۱۸۰۰ وات', p:33000000},
-      {n:'پلوپز ۸۰۴ لایف', k:'پلوپز · دیجیتال · ۱۸۰۰ وات · ۲۶ برنامه · ظرفیت ۱۲ نفره', p:33500000},
-      {n:'پلوپز ۸۰۷ لایف', k:'پلوپز · دیجیتال · ۱۸۰۰ وات · ۲۶ برنامه · ظرفیت ۱۲ نفره', p:33500000},
-      {n:'ست پلوپز و کتری برقی li-fsr806 لایف', k:'ست پلوپز و کتری برقی · دیجیتال · ۱۸۰۰ وات · ظرفیت ۱۲ نفره', p:15900000}
-    ]
-  },
-  {
-    id:'meat', name:'چرخ گوشت', color:'#4d7c0f',
-    items:[
-      {n:'چرخ گوشت mg-703 مشکی لایف', k:'چرخ گوشت · <b>موتور ۱۸۰۰ وات</b> · مشکی · تیغه فلزی · دیسک‌های مختلف', p:29400000},
-      {n:'چرخ گوشت ۷۰۱ MG استیل لایف', k:'چرخ گوشت · <b>موتور ۱۸۰۰ وات</b> · استیل · تیغه فلزی · دیسک‌های مختلف · سیستم ایمنی', p:32000000}
-    ]
-  },
-  {
-    id:'blend', name:'آسیاب و خردکن', color:'#16a34a',
-    items:[
-      {n:'آسیاب Li-GM 123 لایف', k:'آسیاب · تیغه استیل · موتور ۳۰۰ وات · مخزن ۱۰۰ گرمی · بدنه پلاستیک مقاوم', p:8500000},
-      {n:'خردکن ۴ تیغه استیل Li-ch202 لایف', k:'خردکن · <b>۴ تیغه استیل</b> · <b>ظرفیت ۱.۸ لیتر</b> · موتور ۴۰۰ وات · کلید پالس', p:11000000},
-      {n:'آسیاب خردکن ۶ تیغه استیل li-ch205 لایف', k:'آسیاب خردکن · <b>۶ تیغه استیل</b> · موتور ۴۰۰ وات · ظرفیت ۱.۵ لیتر · کلید پالس', p:14000000}
-    ]
-  },
-  {
-    id:'mixer', name:'همزن', color:'#22c55e',
-    items:[
-      {n:'همزن برقی Mli-642 لایف', k:'همزن برقی · کاسه‌دار · ۵ سرعته · موتور ۳۰۰ وات · پایه ثابت', p:14600000},
-      {n:'همزن برقی Mli-643 لایف', k:'همزن برقی · کاسه‌دار · ۵ سرعته · موتور ۳۰۰ وات · مشکی و سفید', p:17800000},
-      {n:'گوشت‌کوب برقی Li-201 لایف', k:'گوشت‌کوب برقی · موتور ۴۰۰ وات · سفید و مشکی · تیغه استیل · ۲ سرعته', p:9000000}
-    ]
-  },
-  {
-    id:'juicer', name:'آبمیوه‌گیری', color:'#84cc16',
-    items:[
-      {n:'آبمیوه‌گیری li-fj406sh لایف', k:'آبمیوه‌گیری · موتور ۸۰۰ وات · مخزن ۱ لیتر · تیغه استیل · ۲ سرعته', p:32120000},
-      {n:'آبمیوه‌گیری چهارکاره fj404 مشکی-استیل لایف', k:'آبمیوه‌گیری <b>چهارکاره</b> · موتور ۸۰۰ وات · مخزن ۱ لیتر · استیل · ۵ حالت', p:30360000},
-      {n:'آبمیوه‌گیری چهارکاره fj403 استیل-مشکی لایف', k:'آبمیوه‌گیری <b>چهارکاره</b> · موتور ۸۰۰ وات · مخزن ۱ لیتر · استیل · ۵ حالت', p:33000000},
-      {n:'آبمیوه‌گیری li-fj407sh لایف', k:'آبمیوه‌گیری · موتور ۸۰۰ وات · مخزن ۱ لیتر · تیغه استیل · ۲ سرعته', p:39800000},
-      {n:'آبمیوه‌گیری li-fj 408 sh لایف', k:'آبمیوه‌گیری · موتور ۸۰۰ وات · مخزن ۱ لیتر · تیغه استیل · ۲ سرعته', p:39800000}
-    ]
-  },
-  {
-    id:'drink', name:'چای‌ساز و اسپرسوساز', color:'#a3e635',
-    items:[
-      {n:'چای‌ساز T305B لایف', k:'چای‌ساز · <b>ظرفیت ۱.۸ لیتر</b> · کتری برقی · فیلتر استیل · ۱۸۰۰ وات', p:17900000},
-      {n:'اسپرسوساز li-cf04 استیل لایف', k:'اسپرسوساز · <b>۱۵ بار فشار</b> · استیل · مخزن ۱.۵ لیتر · نازل بخار', p:33600000},
-      {n:'اسپرسوساز li-cf03 لایف', k:'اسپرسوساز · <b>۱۵ بار فشار</b> · دیجیتال · مخزن ۱.۵ لیتر · نازل بخار', p:36500000}
-    ]
-  },
-  {
-    id:'fryer', name:'سرخ‌کن', color:'#eab308',
-    items:[
-      {n:'ایر فایر سرخ‌کن li570 مشکی لایف', k:'ایر فایر · <b>بدون روغن</b> · <b>ظرفیت ۵.۵ لیتر</b> · ۲۲۰۰ وات · تنظیم دما ۸۰-۲۰۰ · ۸ برنامه', p:39500000}
-    ]
-  },
-  {
-    id:'other-kitchen', name:'سایر لوازم آشپزخانه', color:'#facc15',
-    items:[
-      {n:'سرویس قابلمه ۲۷ پارچه گرانیتی روما', k:'<b>۲۷ پارچه</b> · گرانیتی · مشکی/دودی/رزگلد · نچسب · درب شیشه‌ای', p:43500000}
-    ]
-  },
-  {
-    id:'tv', name:'تلویزیون', color:'#7c3aed',
-    items:[
-      {n:'تلویزیون ۵۰ اینچ QRS', k:'<b>۵۰ اینچ</b> · <b>۴K</b> · Smart · UHD · Wi-Fi · ۲ HDMI', p:130300000},
-      {n:'LED ۵۵ اینچ Panaromic PA-55 SD366', k:'<b>۵۵ اینچ</b> · LED · Smart · ۲ HDMI · USB', p:133000000},
-      {n:'تلویزیون ۵۵ اینچ Rs لایف', k:'<b>۵۵ اینچ</b> · <b>۴K</b> · Smart · UHD · Wi-Fi · ۳ HDMI', p:161000000},
-      {n:'LED ۵۵ اینچ DAEWOO 55DM4000', k:'<b>۵۵ اینچ</b> · LED · Smart · دوو · ۳ HDMI', p:167300000},
-      {n:'LED ۶۵ اینچ DAEWOO 65DM4000', k:'<b>۶۵ اینچ</b> · LED · Smart · دوو · ۳ HDMI', p:233200000},
-      {n:'LED ۶۵ اینچ Leoco L65000 پنل نقره‌ای و رزگلد', k:'<b>۶۵ اینچ</b> · LED · پنل نقره‌ای و رزگلد · Smart', p:236000000}
-    ]
-  },
-  {
-    id:'speaker', name:'باند و اسپیکر', color:'#9333ea',
-    items:[
-      {n:'باند پارتی باکس pb115 لایف', k:'باند پارتی باکس · <b>۱۵ اینچ</b> · بلوتوث · USB · ۱۰۰۰ وات · باتری قابل شارژ', p:73000000},
-      {n:'پارتی باکس Li-pb114 لایف', k:'پارتی باکس · <b>۱۵ اینچ</b> · بلوتوث · USB · ۱۰۰۰ وات · باتری قابل شارژ', p:75300000},
-      {n:'باند اسپیکر دو قلو ۴ ساب li-spb116 لایف', k:'اسپیکر <b>دو قلو</b> · <b>۴ ساب</b> · بلوتوث · ۲۰۰۰ وات · USB', p:130000000},
-      {n:'اسپیکر دو قلو ۱۱۹ لایف', k:'اسپیکر <b>دو قلو</b> · بلوتوث · ۲۰۰۰ وات · USB · ریموت', p:130000000}
-    ]
-  },
-  {
-    id:'ac', name:'کولر گازی', color:'#0284c7',
-    items:[
-      {n:'کولر گازی ۱۲۰۰۰ لایف T3', k:'کولر گازی · <b>۱۲۰۰۰ BTU</b> · T3 (گرمسیری) · سرد و گرم · اینورتر · گاز R410', p:165000000},
-      {n:'کولر گازی آیس جنرال 24HO1RALB (۲۴۰۰۰)', k:'کولر گازی · <b>۲۴۰۰۰ BTU</b> · آیس جنرال · موتور پنل GTSE · سرد و گرم · اینورتر', p:135000000, b:250800000, badge:true},
-      {n:'کولر گازی ۲۴۰۰۰ لایف T1 سرد و گرم', k:'کولر گازی · <b>۲۴۰۰۰ BTU</b> · T1 (معتدل) · سرد و گرم · اینورتر · گاز R410', p:250800000},
-      {n:'کولر گازی ۲۴۰۰۰ لایف T3 سرد و گرم', k:'کولر گازی · <b>۲۴۰۰۰ BTU</b> · T3 (گرمسیری) · سرد و گرم · اینورتر · گاز R410', p:283800000},
-      {n:'کولر گازی ۳۰۰۰۰ لایف T1 سرد و گرم', k:'کولر گازی · <b>۳۰۰۰۰ BTU</b> · T1 (معتدل) · سرد و گرم · اینورتر · گاز R410', p:331100000},
-      {n:'کولر گازی ۳۰۰۰۰ لایف T3 سرد و گرم', k:'کولر گازی · <b>۳۰۰۰۰ BTU</b> · T3 (گرمسیری) · سرد و گرم · اینورتر · گاز R410', p:390300000}
-    ]
-  },
-  {
-    id:'cooler', name:'کولر آبی', color:'#06b6d4',
-    items:[
-      {n:'کولر آبی پرتابل ۱۸۰۰۰ لایف', k:'کولر آبی <b>پرتابل</b> · <b>۱۸۰۰۰</b> · قابل حمل · مخزن آب · ۳ سرعته', p:37200000}
-    ]
-  },
-  {
-    id:'fan', name:'پنکه', color:'#22d3ee',
-    items:[
-      {n:'پنکه Li f 106 مشکی لایف', k:'پنکه · ایستاده · مشکی · ۳ سرعته · تنظیم ارتفاع · تیغه پلاستیکی', p:13000000}
-    ]
-  },
-  {
-    id:'heater', name:'بخاری برقی', color:'#e11d48',
-    items:[
-      {n:'بخاری برقی فن‌دار ۶ المنت لایف', k:'بخاری برقی فن‌دار · <b>۶ المنت</b> · <b>۲۰۰۰ وات</b> · ترموستات · ۳ سرعته', p:9500000}
-    ]
-  },
-  {
-    id:'vac', name:'جاروبرقی', color:'#db2777',
-    items:[
-      {n:'جاروبرقی اسپایدر لایف', k:'جاروبرقی · ۲۰۰۰ وات · مخزن ۳ لیتر · کیسه‌دار · سبز/آبی/قرمز', p:27600000},
-      {n:'جاروبرقی پرو لایف', k:'جاروبرقی · ۲۲۰۰ وات · مخزن ۳ لیتر · کیسه‌دار · سفید/نوک مدادی/طلایی', p:27600000},
-      {n:'جاروبرقی سطلی دیجیتال VD 3010 لایف', k:'جاروبرقی سطلی دیجیتال · ۲۰۰۰ وات · <b>مخزن ۲۰ لیتر</b> · سطلی', p:29000000},
-      {n:'جاروبرقی اسپرو ۲۴۰۰ وات لایف', k:'جاروبرقی · <b>۲۴۰۰ وات</b> · مخزن ۳ لیتر · کیسه‌دار · مشکی/آبی/سیلور', p:30100000},
-      {n:'جاروبرقی ملورین', k:'جاروبرقی · کیسه‌دار · ۲۰۰۰ وات · مخزن ۳ لیتر', p:33100000}
-    ]
-  },
-  {
-    id:'vac-portable', name:'جارو شارژی و پرتابل', color:'#ec4899',
-    items:[
-      {n:'جاروبرقی پرتابل سیمی فیلیپس PowerPro Expert', k:'فیلیپس · پرتابل سیمی · <b>۵ سرعته</b> · فیلتر HEPA', p:13000000},
-      {n:'جاروبرقی شارک نوک مدادی-سفید ۲۴۰۰ وات لایف', k:'شارک · <b>۲۴۰۰ وات</b> · نوک مدادی-سفید · شارژی · بدون سیم', p:16300000},
-      {n:'جارو پرتابل سیم‌دار تانیا لایف', k:'پرتابل سیم‌دار · سفید و مشکی · ۱۰۰۰ وات', p:22000000},
-      {n:'جارو پرتابل سیم‌دار تیوانا لایف', k:'پرتابل سیم‌دار · سفید و مشکی · ۱۰۰۰ وات', p:22000000},
-      {n:'جاروبرقی شارژی لنا لایف', k:'شارژی · بدون سیم · ۲۲.۲ ولت · باتری لیتیومی', p:27300000},
-      {n:'جارو شارژی مانا', k:'شارژی · بدون سیم · ۲۲.۲ ولت · باتری لیتیومی', p:37000000}
-    ]
-  },
-  {
-    id:'iron', name:'اتو', color:'#475569',
-    items:[
-      {n:'اتو بخار ۹۰۲ si مشکی و سفید', k:'اتو بخار · <b>۲۴۰۰ وات</b> · مشکی و سفید · مخزن ۳۰۰ میلی‌لیتر', p:11500000},
-      {n:'اتو بخار ۹۰۱ si مشکی و سفید', k:'اتو بخار · <b>۲۴۰۰ وات</b> · مشکی و سفید · مخزن ۳۰۰ میلی‌لیتر', p:12000000},
-      {n:'اتو بخار ۹۰۳ si مشکی و سفید', k:'اتو بخار · <b>۲۴۰۰ وات</b> · مشکی و سفید · مخزن ۳۰۰ میلی‌لیتر', p:12600000}
-    ]
-  }
-];
+<!-- ===================== COMPARE FLOATING BUTTON ===================== -->
+<button type="button" class="compare-floating hidden" id="compareFloating" aria-label="مقایسه محصولات">
+  <span class="compare-floating-icon" aria-hidden="true">⚖️</span>
+  <span class="compare-floating-text">مقایسه</span>
+  <span class="compare-count" id="compareCount">۰</span>
+</button>
 
-function fa(n){ return Number(n).toLocaleString('fa-IR'); }
-function bajet(base){ return Math.round((base * 1.14) / 24); }
-function avand(base){ return Math.round((base * 1.10) / 18); }
+<!-- ===================== CART DRAWER ===================== -->
+<aside class="drawer" id="cartDrawer" aria-hidden="true" aria-label="سبد خرید">
+  <div class="drawer-header">
+    <h2>🛒 سبد خرید</h2>
+    <button type="button" class="drawer-close" id="cartClose" aria-label="بستن">✕</button>
+  </div>
 
-function shade(hex, p){
-  var n = parseInt(hex.slice(1),16);
-  var r=(n>>16)+p, g=((n>>8)&0xff)+p, b=(n&0xff)+p;
-  r=Math.max(0,Math.min(255,r));
-  g=Math.max(0,Math.min(255,g));
-  b=Math.max(0,Math.min(255,b));
-  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
-}
+  <div class="saved-carts-bar">
+    <button type="button" class="saved-carts-current" id="savedCartsCurrent">
+      <span class="saved-carts-name" id="currentCartName">سبد فعلی</span>
+      <span class="caret" aria-hidden="true">▾</span>
+    </button>
+  </div>
 
-var activeTab = 'all';
-var searchTerm = '';
+  <div class="drawer-body" id="cartItems">
+    <!-- اقلام سبد توسط app.js تزریق می‌شوند -->
+  </div>
 
-function renderTabs(){
-  var tabsEl = document.getElementById('tabs');
-  var totalItems = 0;
-  CATEGORIES.forEach(function(c){ totalItems += c.items.length; });
+  <div class="drawer-footer" id="cartFooter">
+    <div class="summary-row">
+      <span>جمع نقدی</span>
+      <strong id="summaryCash">۰ تومان</strong>
+    </div>
+    <div class="summary-row">
+      <span>قسط ۲۴ ماهه (باجت)</span>
+      <strong id="summaryBajet">۰ تومان</strong>
+    </div>
+    <div class="summary-row">
+      <span>قسط ۱۸ ماهه (آوند)</span>
+      <strong id="summaryAvand">۰ تومان</strong>
+    </div>
+    <div class="drawer-actions">
+      <button type="button" class="action-btn" id="saveCartBtn">💾 ذخیره</button>
+      <button type="button" class="action-btn primary" id="smsCartBtn">📱 ارسال پیامک</button>
+      <button type="button" class="action-btn danger" id="clearCartBtn">🗑️ خالی کردن</button>
+    </div>
+  </div>
+</aside>
 
-  var list = [{id:'all', name:'همه', color:'#0f172a'}].concat(CATEGORIES);
-  var html = '';
-  list.forEach(function(cat){
-    var cnt = cat.id === 'all' ? totalItems : cat.items.length;
-    var isActive = activeTab === cat.id;
-    var inlineStyle = isActive ? 'background:'+cat.color+';border-color:'+cat.color+';color:#fff;' : '';
-    html += '<button type="button" class="tab'+(isActive?' active':'')+'" data-id="'+cat.id+'" style="'+inlineStyle+'">'
-          + cat.name + '<span class="cnt">'+fa(cnt)+'</span></button>';
-  });
-  tabsEl.innerHTML = html;
+<!-- ===================== SAVED CARTS SHEET ===================== -->
+<div class="bottom-sheet hidden" id="savedCartsSheet" aria-hidden="true" aria-label="سبدهای ذخیره‌شده">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <h3>سبدهای ذخیره‌شده</h3>
+  <div class="saved-carts-list" id="savedCartsList"></div>
+  <button type="button" class="action-btn primary full" id="newCartBtn">+ سبد جدید</button>
+</div>
 
-  var btns = tabsEl.querySelectorAll('.tab');
-  for(var i=0;i<btns.length;i++){
-    btns[i].addEventListener('click', function(){
-      activeTab = this.getAttribute('data-id');
-      renderTabs();
-      renderContent();
-    });
-  }
-}
+<!-- ===================== COMPARE MODAL ===================== -->
+<div class="modal hidden" id="compareModal" aria-hidden="true" aria-label="مقایسه محصولات">
+  <div class="modal-header">
+    <h2>⚖️ مقایسه محصولات</h2>
+    <button type="button" class="modal-close" id="compareClose" aria-label="بستن">✕</button>
+  </div>
+  <div class="modal-body" id="compareBody"></div>
+</div>
 
-function itemRow(item){
-  var base = (typeof item.b === 'number') ? item.b : item.p;
-  var hasDiff = (typeof item.b === 'number');
+<!-- ===================== FOCUS MODE MODAL ===================== -->
+<div class="modal focus-modal hidden" id="focusModal" aria-hidden="true" aria-label="نمایش محصول">
+  <button type="button" class="modal-close focus-close" id="focusClose" aria-label="بستن">✕</button>
+  <div class="focus-body" id="focusBody"></div>
+</div>
 
-  var priceHtml;
-  if(hasDiff){
-    priceHtml = '<span class="old">'+fa(item.b)+'</span>'+fa(item.p);
-  } else {
-    priceHtml = fa(item.p);
-  }
+<!-- ===================== CALCULATOR MODAL ===================== -->
+<div class="modal hidden" id="calcModal" aria-hidden="true" aria-label="ماشین‌حساب قیمت">
+  <div class="modal-header">
+    <h2>🧮 ماشین‌حساب قیمت</h2>
+    <button type="button" class="modal-close" id="calcClose" aria-label="بستن">✕</button>
+  </div>
+  <div class="modal-body">
+    <label class="calc-label" for="calcInput">قیمت (تومان)</label>
+    <input type="text" class="calc-input" id="calcInput" placeholder="مثلاً 85000000" inputmode="numeric" autocomplete="off">
+    <div class="calc-results">
+      <div class="calc-result">
+        <span>قسط ۲۴ ماهه (باجت)</span>
+        <strong id="calcBajet">—</strong>
+      </div>
+      <div class="calc-result">
+        <span>قسط ۱۸ ماهه (آوند)</span>
+        <strong id="calcAvand">—</strong>
+      </div>
+    </div>
+    <div class="calc-presets">
+      <button type="button" class="preset-btn" data-preset="50000000">۵۰ میلیون</button>
+      <button type="button" class="preset-btn" data-preset="100000000">۱۰۰ میلیون</button>
+      <button type="button" class="preset-btn" data-preset="200000000">۲۰۰ میلیون</button>
+      <button type="button" class="preset-btn" data-preset="500000000">۵۰۰ میلیون</button>
+    </div>
+  </div>
+</div>
 
-  var badge = item.badge ? '<span class="badge">نقدی ویژه</span>' : '';
-  var noteBajet = hasDiff ? '<small>بر اساس قیمت لیست ('+fa(base)+')</small>' : '<small>تومان</small>';
-  var noteAvand = noteBajet;
+<!-- ===================== AUTHOR BOTTOM SHEET ===================== -->
+<div class="bottom-sheet author-sheet hidden" id="authorSheet" aria-hidden="true" aria-label="اطلاعات طراح">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <div class="author-info">
+    <div class="author-avatar" aria-hidden="true">👨‍💻</div>
+    <h3>محمدمهدی کوشکی</h3>
+    <p>طراح و توسعه‌دهنده این اپلیکیشن</p>
+    <a href="tel:09196071664" class="action-btn primary full">📞 تماس با طراح</a>
+  </div>
+</div>
 
-  return '<tr>'
-    + '<td><div class="p-name">'+item.n+badge+'</div></td>'
-    + '<td><div class="p-feat">'+item.k+'</div></td>'
-    + '<td class="p-price">'+priceHtml+'</td>'
-    + '<td class="p-bajet">'+fa(bajet(base))+noteBajet+'</td>'
-    + '<td class="p-avand">'+fa(avand(base))+noteAvand+'</td>'
-    + '</tr>';
-}
+<!-- ===================== TOAST ===================== -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-function tableHtml(items){
-  var rows = '';
-  for(var i=0;i<items.length;i++){ rows += itemRow(items[i]); }
-  return '<div class="table-scroll"><table>'
-    + '<thead><tr>'
-    + '<th style="width:28%">محصول</th>'
-    + '<th style="width:29%">توضیحات کلیدی</th>'
-    + '<th style="width:15%">قیمت (تومان)</th>'
-    + '<th style="width:14%">قسط ۲۴ ماهه<br><small style="font-weight:500;opacity:.7">باجت</small></th>'
-    + '<th style="width:14%">قسط ۱۸ ماهه<br><small style="font-weight:500;opacity:.7">آوند</small></th>'
-    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
-}
+<!-- ===================== OVERLAY ===================== -->
+<div class="overlay hidden" id="overlay" aria-hidden="true"></div>
 
-function categoryCard(cat, itemsOverride){
-  var items = itemsOverride || cat.items;
-  var headStyle = 'background:linear-gradient(90deg,'+cat.color+','+shade(cat.color,-20)+')';
-  return '<section class="card">'
-    + '<div class="card-head" style="'+headStyle+'">'
-    + '<h2>'+cat.name+'</h2>'
-    + '<span class="stats">'+fa(items.length)+' کالا</span>'
-    + '</div>'
-    + tableHtml(items)
-    + '</section>';
-}
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="footer-brand">فروشگاه لوازم خانگی باشایان</div>
+  <div class="footer-link"><a href="https://bashayan.ir" target="_blank" rel="noopener">bashayan.ir</a></div>
+  <div class="footer-note">قیمت‌ها به تومان · اقساط باجت (۲۴ ماهه) و آوند (۱۸ ماهه)</div>
+  <div class="footer-designer">
+    طراحی از
+    <button type="button" class="designer-link" id="designerLink">محمدمهدی کوشکی</button>
+  </div>
+</footer>
 
-function renderContent(){
-  var content = document.getElementById('content');
-  var q = searchTerm.trim().toLowerCase();
-
-  if(q){
-    var grouped = {};
-    var order = [];
-    var totalMatches = 0;
-
-    CATEGORIES.forEach(function(cat){
-      cat.items.forEach(function(it){
-        var plain = (it.n + ' ' + it.k).replace(/<[^>]+>/g,'');
-        if(plain.toLowerCase().indexOf(q) !== -1){
-          if(!grouped[cat.id]){
-            grouped[cat.id] = {cat:cat, items:[]};
-            order.push(cat.id);
-          }
-          grouped[cat.id].items.push(it);
-          totalMatches++;
-        }
-      });
-    });
-
-    if(totalMatches === 0){
-      content.innerHTML = '<div class="search-title">نتیجه‌ای برای «'+searchTerm+'» پیدا نشد.</div>';
-      return;
-    }
-
-    var html = '<div class="search-title">'+fa(totalMatches)+' نتیجه برای «'+searchTerm+'»</div>';
-    order.forEach(function(id){
-      html += categoryCard(grouped[id].cat, grouped[id].items);
-    });
-    content.innerHTML = html;
-    return;
-  }
-
-  if(activeTab === 'all'){
-    var out = '';
-    CATEGORIES.forEach(function(cat){ out += categoryCard(cat); });
-    content.innerHTML = out;
-  } else {
-    for(var i=0;i<CATEGORIES.length;i++){
-      if(CATEGORIES[i].id === activeTab){
-        content.innerHTML = categoryCard(CATEGORIES[i]);
-        break;
-      }
-    }
-  }
-}
-
-document.getElementById('searchInput').addEventListener('input', function(e){
-  searchTerm = e.target.value;
-  renderContent();
-});
-
-renderTabs();
-renderContent();
-</script>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
