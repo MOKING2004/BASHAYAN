@@ -122,7 +122,7 @@
 </aside>
 
 <!-- ===================== SAVED CARTS SHEET ===================== -->
-<div class="bottom-sheet hidden" id="savedCartsSheet" aria-hidden="true" aria-label="سبدهای ذخیره‌شده">
+<div class="bottom-sheet" id="savedCartsSheet" aria-hidden="true" aria-label="سبدهای ذخیره‌شده">
   <div class="sheet-handle" aria-hidden="true"></div>
   <h3>سبدهای ذخیره‌شده</h3>
   <div class="saved-carts-list" id="savedCartsList"></div>
@@ -130,7 +130,7 @@
 </div>
 
 <!-- ===================== COMPARE MODAL ===================== -->
-<div class="modal hidden" id="compareModal" aria-hidden="true" aria-label="مقایسه محصولات">
+<div class="modal" id="compareModal" aria-hidden="true" aria-label="مقایسه محصولات">
   <div class="modal-header">
     <h2>⚖️ مقایسه محصولات</h2>
     <button type="button" class="modal-close" id="compareClose" aria-label="بستن">✕</button>
@@ -139,13 +139,13 @@
 </div>
 
 <!-- ===================== FOCUS MODE MODAL ===================== -->
-<div class="modal focus-modal hidden" id="focusModal" aria-hidden="true" aria-label="نمایش محصول">
+<div class="modal focus-modal" id="focusModal" aria-hidden="true" aria-label="نمایش محصول">
   <button type="button" class="modal-close focus-close" id="focusClose" aria-label="بستن">✕</button>
   <div class="focus-body" id="focusBody"></div>
 </div>
 
 <!-- ===================== CALCULATOR MODAL ===================== -->
-<div class="modal hidden" id="calcModal" aria-hidden="true" aria-label="ماشین‌حساب قیمت">
+<div class="modal" id="calcModal" aria-hidden="true" aria-label="ماشین‌حساب قیمت">
   <div class="modal-header">
     <h2>🧮 ماشین‌حساب قیمت</h2>
     <button type="button" class="modal-close" id="calcClose" aria-label="بستن">✕</button>
@@ -173,7 +173,7 @@
 </div>
 
 <!-- ===================== AUTHOR BOTTOM SHEET ===================== -->
-<div class="bottom-sheet author-sheet hidden" id="authorSheet" aria-hidden="true" aria-label="اطلاعات طراح">
+<div class="bottom-sheet author-sheet" id="authorSheet" aria-hidden="true" aria-label="اطلاعات طراح">
   <div class="sheet-handle" aria-hidden="true"></div>
   <div class="author-info">
     <div class="author-avatar" aria-hidden="true">👨‍💻</div>
@@ -212,14 +212,12 @@
         .then(function (reg) {
           console.log('✓ Service Worker ثبت شد. محدوده:', reg.scope);
 
-          // بررسی آپدیت‌های جدید
           reg.addEventListener('updatefound', function () {
             const newWorker = reg.installing;
             if (!newWorker) return;
 
             newWorker.addEventListener('statechange', function () {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // نسخه جدید آماده است
                 console.log('🔄 نسخه جدید اپ آماده است. صفحه را رفرش کنید.');
               }
             });
@@ -231,13 +229,12 @@
     });
   }
 
-  // مدیریت لینک‌های میانبر PWA (shortcuts)
+  // مدیریت لینک‌های میانبر PWA
   document.addEventListener('DOMContentLoaded', function () {
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');
 
     if (action === 'cart') {
-      // باز کردن سبد خرید
       setTimeout(function () {
         const btn = document.getElementById('cartToggle');
         if (btn) btn.click();
@@ -245,7 +242,6 @@
     }
 
     if (action === 'calc') {
-      // باز کردن ماشین‌حساب
       setTimeout(function () {
         const btn = document.getElementById('floatingCalcBtn');
         if (btn) btn.click();
