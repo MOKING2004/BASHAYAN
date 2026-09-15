@@ -1,6 +1,7 @@
 /* ================================================================
    باشایان | نسخه فروشنده
-   فایل منطق اصلی اپلیکیشن — نسخه نهایی اصلاح‌شده
+   فایل منطق اصلی اپلیکیشن — نسخه نهایی
+   شامل: گالری تصاویر + فیلتر قیمت + تمام اصلاحات
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
@@ -23,7 +24,9 @@
     currentCartId: null,
     carts: {},
     toastTimer: null,
-    searchTimer: null
+    searchTimer: null,
+    priceMin: 0,
+    priceMax: 0
   };
 
   /* ============================================================
@@ -96,6 +99,49 @@
       .replace(/>/g, '&gt;');
   }
 
+  // گرفتن اولین تصویر از آرایه
+  function getFirstImage(img) {
+    if (!img) return '';
+    if (typeof img === 'string') return img;
+    if (Array.isArray(img) && img.length > 0) return img[0];
+    return '';
+  }
+
+  // گرفتن آرایه تصاویر
+  function getImageArray(img) {
+    if (!img) return [];
+    if (typeof img === 'string') return img ? [img] : [];
+    if (Array.isArray(img)) return img;
+    return [];
+  }
+
+  // بررسی بازه قیمت
+  function isInPriceRange(item) {
+    if (state.priceMin > 0 && item.p < state.priceMin) return false;
+    if (state.priceMax > 0 && item.p > state.priceMax) return false;
+    return true;
+  }
+
+  // فیلتر بر اساس قیمت
+  function filterByPrice(items) {
+    if (state.priceMin === 0 && state.priceMax === 0) return items;
+    return items.filter(isInPriceRange);
+  }
+
+  // ذخیره/بازیابی فیلتر قیمت
+  function savePriceFilter() {
+    save('bashayan_price_filter', {
+      min: state.priceMin,
+      max: state.priceMax
+    });
+  }
+
+  function loadPriceFilter() {
+    const saved = load('bashayan_price_filter', { min: 0, max: 0 });
+    state.priceMin = saved.min || 0;
+    state.priceMax = saved.max || 0;
+  }
+
   /* ============================================================
      بخش ۳: Toast
      ============================================================ */
@@ -131,13 +177,12 @@
   }
 
   function applyTheme(theme) {
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) metaTheme.setAttribute('content', '#000000');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) metaTheme.setAttribute('content', '#0f172a');
     }
   }
@@ -166,8 +211,7 @@
   }
 
   function updateViewToggleUI() {
-    const btns = document.querySelectorAll('.view-btn');
-    btns.forEach(function (btn) {
+    document.querySelectorAll('.view-btn').forEach(function (btn) {
       if (btn.dataset.view === state.viewMode) {
         btn.classList.add('active');
       } else {
@@ -244,7 +288,6 @@
 
     const isCompared = state.compareList.indexOf(id) !== -1;
     const isInCart = isItemInCart(item.n);
-
     const nameSafe = escapeAttr(item.n);
     const featSafe = escapeAttr(stripHtml(item.k));
 
@@ -320,9 +363,10 @@
 
     const badge = item.badge ? '<span class="badge card-badge">نقدی ویژه</span>' : '';
 
+    const firstImg = getFirstImage(item.img);
     let imgHtml;
-    if (item.img) {
-      imgHtml = '<img class="card-image" src="' + item.img + '" alt="' + escapeAttr(item.n) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="card-image-placeholder" style="display:none;">📦</div>';
+    if (firstImg) {
+      imgHtml = '<img class="card-image" src="' + firstImg + '" alt="' + escapeAttr(item.n) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="card-image-placeholder" style="display:none;">📦</div>';
     } else {
       imgHtml = '<div class="card-image-placeholder">📦</div>';
     }
@@ -395,7 +439,7 @@
   }
 
   /* ============================================================
-     بخش ۱۰: رندر محتوا
+     بخش ۱۰: رندر محتوا (با فیلتر قیمت)
      ============================================================ */
 
   function renderContent() {
@@ -404,23 +448,24 @@
 
     const q = state.searchTerm.trim().toLowerCase();
 
+    // حالت جستجو
     if (q) {
       const grouped = {};
       const order = [];
       let totalMatches = 0;
 
       CATEGORIES.forEach(function (cat) {
-        cat.items.forEach(function (it) {
+        const filtered = cat.items.filter(function (it) {
+          if (!isInPriceRange(it)) return false;
           const plain = (it.n + ' ' + stripHtml(it.k)).toLowerCase();
-          if (plain.indexOf(q) !== -1) {
-            if (!grouped[cat.id]) {
-              grouped[cat.id] = { cat: cat, items: [] };
-              order.push(cat.id);
-            }
-            grouped[cat.id].items.push(it);
-            totalMatches++;
-          }
+          return plain.indexOf(q) !== -1;
         });
+
+        if (filtered.length > 0) {
+          grouped[cat.id] = { cat: cat, items: filtered };
+          order.push(cat.id);
+          totalMatches += filtered.length;
+        }
       });
 
       if (totalMatches === 0) {
@@ -437,19 +482,37 @@
       return;
     }
 
+    // حالت همه
     if (state.activeTab === 'all') {
       let out = '';
+      let hasAny = false;
       CATEGORIES.forEach(function (cat) {
-        out += renderCategoryCard(cat);
+        const filtered = filterByPrice(cat.items);
+        if (filtered.length > 0) {
+          out += renderCategoryCard(cat, filtered);
+          hasAny = true;
+        }
       });
+
+      if (!hasAny) {
+        content.innerHTML = '<div class="search-title">محصولی در این بازه قیمت پیدا نشد.</div>';
+        return;
+      }
+
       content.innerHTML = out;
       attachContentListeners();
       return;
     }
 
+    // حالت یک دسته خاص
     for (let i = 0; i < CATEGORIES.length; i++) {
       if (CATEGORIES[i].id === state.activeTab) {
-        content.innerHTML = renderCategoryCard(CATEGORIES[i]);
+        const filtered = filterByPrice(CATEGORIES[i].items);
+        if (filtered.length === 0) {
+          content.innerHTML = '<div class="search-title">محصولی در این بازه قیمت پیدا نشد.</div>';
+          return;
+        }
+        content.innerHTML = renderCategoryCard(CATEGORIES[i], filtered);
         attachContentListeners();
         break;
       }
@@ -507,7 +570,7 @@
   }
 
   /* ============================================================
-     بخش ۱۳: Focus Mode
+     بخش ۱۳: Focus Mode (با گالری)
      ============================================================ */
 
   function openFocus(id) {
@@ -520,12 +583,34 @@
     const hasDiff = typeof item.b === 'number';
     const isInCart = isItemInCart(item.n);
     const id2 = itemId(item);
+    const images = getImageArray(item.img);
 
-    let imgHtml;
-    if (item.img) {
-      imgHtml = '<img class="focus-image" src="' + item.img + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="focus-image-placeholder" style="display:none;">📦</div>';
+    // گالری
+    let galleryHtml = '';
+    if (images.length > 0) {
+      let mainImgHtml = '<img class="focus-main-image" id="focusMainImage" src="' + images[0] + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="focus-image-placeholder" style="display:none;">📦</div>';
+
+      let thumbsHtml = '';
+      if (images.length > 1) {
+        thumbsHtml = '<div class="focus-thumbs" role="tablist" aria-label="گالری تصاویر">';
+        images.forEach(function (url, idx) {
+          thumbsHtml += '<button type="button" class="focus-thumb' + (idx === 0 ? ' active' : '') + '" data-img-url="' + escapeAttr(url) + '" role="tab" aria-selected="' + (idx === 0 ? 'true' : 'false') + '">'
+            + '<img src="' + url + '" alt="تصویر ' + faNum(idx + 1) + '" loading="lazy" onerror="this.parentElement.style.display=\'none\';" />'
+            + '</button>';
+        });
+        thumbsHtml += '</div>';
+      }
+
+      galleryHtml = '<div class="focus-gallery">'
+        + '<div class="focus-image-wrap">' + mainImgHtml + '</div>'
+        + thumbsHtml
+      + '</div>';
     } else {
-      imgHtml = '<div class="focus-image-placeholder">📦</div>';
+      galleryHtml = '<div class="focus-gallery">'
+        + '<div class="focus-image-wrap">'
+          + '<div class="focus-image-placeholder">📦</div>'
+        + '</div>'
+      + '</div>';
     }
 
     let priceHtml;
@@ -536,7 +621,7 @@
     }
 
     const html = ''
-      + '<div class="focus-image-wrap">' + imgHtml + '</div>'
+      + galleryHtml
       + '<div class="focus-cat-badge" style="background:' + cat.color + ';">'
         + (cat.icon || '') + ' ' + cat.name
       + '</div>'
@@ -572,6 +657,29 @@
     showOverlay();
 
     attachCopyListeners(body);
+
+    // گالری: کلیک روی تصاویر کوچک
+    const mainImg = document.getElementById('focusMainImage');
+    const thumbs = body.querySelectorAll('.focus-thumb');
+    thumbs.forEach(function (thumb) {
+      thumb.addEventListener('click', function () {
+        const url = this.dataset.imgUrl;
+        if (mainImg && url) {
+          mainImg.src = url;
+          mainImg.style.display = '';
+          const ph = mainImg.nextElementSibling;
+          if (ph) ph.style.display = 'none';
+        }
+        thumbs.forEach(function (t) {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        this.classList.add('active');
+        this.setAttribute('aria-selected', 'true');
+      });
+    });
+
+    // دکمه افزودن به سبد
     const addBtn = body.querySelector('[data-add-id]');
     if (addBtn) {
       addBtn.addEventListener('click', function (e) {
@@ -668,10 +776,11 @@
       const item = f.item;
       const cat = f.category;
       const base = getBase(item);
+      const firstImg = getFirstImage(item.img);
 
       let imgHtml;
-      if (item.img) {
-        imgHtml = '<img src="' + item.img + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
+      if (firstImg) {
+        imgHtml = '<img src="' + firstImg + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
       } else {
         imgHtml = '📦';
       }
@@ -802,7 +911,7 @@
         p: item.p,
         b: item.b || null,
         base: base,
-        img: item.img || '',
+        img: getFirstImage(item.img),
         qty: 1,
         category: cat.name,
         color: cat.color
@@ -917,7 +1026,7 @@
 
     renderCartItems();
 
-    // به‌روزرسانی دکمه‌های افزودن در جدول/کارت
+    // به‌روزرسانی دکمه‌های افزودن
     document.querySelectorAll('[data-add-id]').forEach(function (btn) {
       const found = findItemById(btn.dataset.addId);
       if (!found) return;
@@ -1021,7 +1130,6 @@
         const cart = state.carts[id];
         const count = cart.items.length;
         const isActive = id === state.currentCartId;
-        const nameSafe = escapeAttr(cart.name);
         html += '<div class="saved-cart-item' + (isActive ? ' active' : '') + '">'
           + '<div class="saved-cart-info" data-cart-switch="' + id + '">'
             + '<div class="saved-cart-name">' + cart.name + '</div>'
@@ -1358,7 +1466,162 @@
   }
 
   /* ============================================================
-     بخش ۲۳: اتصال رویدادها به محتوا
+     بخش ۲۳: فیلتر بازه قیمت
+     ============================================================ */
+
+  function openPriceFilter() {
+    const panel = document.getElementById('priceFilterPanel');
+    const toggle = document.getElementById('priceFilterToggle');
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    if (toggle) toggle.classList.add('active');
+    updatePriceFilterInputs();
+  }
+
+  function closePriceFilter() {
+    const panel = document.getElementById('priceFilterPanel');
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  function togglePriceFilter() {
+    const panel = document.getElementById('priceFilterPanel');
+    if (panel.classList.contains('open')) {
+      closePriceFilter();
+    } else {
+      openPriceFilter();
+    }
+  }
+
+  function updatePriceFilterInputs() {
+    const minInput = document.getElementById('priceMinInput');
+    const maxInput = document.getElementById('priceMaxInput');
+    if (minInput) minInput.value = state.priceMin > 0 ? String(state.priceMin) : '';
+    if (maxInput) maxInput.value = state.priceMax > 0 ? String(state.priceMax) : '';
+    updatePriceFilterStatus();
+  }
+
+  function updatePriceFilterStatus() {
+    const statusEl = document.getElementById('priceFilterStatus');
+    const badge = document.getElementById('priceFilterBadge');
+    const clearBtn = document.getElementById('priceFilterClear');
+    const toggle = document.getElementById('priceFilterToggle');
+
+    let count = 0;
+    CATEGORIES.forEach(function (cat) {
+      cat.items.forEach(function (it) {
+        if (isInPriceRange(it)) count++;
+      });
+    });
+
+    const isActive = state.priceMin > 0 || state.priceMax > 0;
+
+    if (statusEl) {
+      if (isActive) {
+        let txt = 'نمایش ';
+        if (state.priceMin > 0 && state.priceMax > 0) {
+          txt += 'از ' + faNum(state.priceMin) + ' تا ' + faNum(state.priceMax);
+        } else if (state.priceMin > 0) {
+          txt += 'بالای ' + faNum(state.priceMin);
+        } else {
+          txt += 'تا ' + faNum(state.priceMax);
+        }
+        txt += ' تومان (' + faNum(count) + ' کالا)';
+        statusEl.textContent = txt;
+      } else {
+        statusEl.textContent = 'همه محصولات (' + faNum(count) + ' کالا)';
+      }
+    }
+
+    if (badge) {
+      if (isActive) {
+        badge.classList.remove('hidden');
+        badge.textContent = faNum(count);
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    if (clearBtn) {
+      if (isActive) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    }
+
+    if (toggle) {
+      if (isActive) {
+        toggle.classList.add('active');
+      } else {
+        toggle.classList.remove('active');
+      }
+    }
+  }
+
+  function applyPriceFilter() {
+    savePriceFilter();
+    updatePriceFilterStatus();
+    renderContent();
+  }
+
+  function clearPriceFilter() {
+    state.priceMin = 0;
+    state.priceMax = 0;
+    const minInput = document.getElementById('priceMinInput');
+    const maxInput = document.getElementById('priceMaxInput');
+    if (minInput) minInput.value = '';
+    if (maxInput) maxInput.value = '';
+    applyPriceFilter();
+    toast('فیلتر قیمت پاک شد', 'success');
+  }
+
+  function initPriceFilter() {
+    loadPriceFilter();
+
+    const toggle = document.getElementById('priceFilterToggle');
+    const closeBtn = document.getElementById('priceFilterClose');
+    const clearBtn = document.getElementById('priceFilterClear');
+    const minInput = document.getElementById('priceMinInput');
+    const maxInput = document.getElementById('priceMaxInput');
+
+    if (toggle) toggle.addEventListener('click', togglePriceFilter);
+    if (closeBtn) closeBtn.addEventListener('click', closePriceFilter);
+    if (clearBtn) clearBtn.addEventListener('click', clearPriceFilter);
+
+    if (minInput) {
+      minInput.addEventListener('input', function () {
+        const val = parseInt(this.value.replace(/[^\d]/g, ''), 10);
+        state.priceMin = isNaN(val) ? 0 : val;
+        applyPriceFilter();
+      });
+    }
+
+    if (maxInput) {
+      maxInput.addEventListener('input', function () {
+        const val = parseInt(this.value.replace(/[^\d]/g, ''), 10);
+        state.priceMax = isNaN(val) ? 0 : val;
+        applyPriceFilter();
+      });
+    }
+
+    document.querySelectorAll('.preset-range').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const min = parseInt(this.dataset.min, 10) || 0;
+        const max = parseInt(this.dataset.max, 10) || 0;
+        state.priceMin = min;
+        state.priceMax = max;
+        if (minInput) minInput.value = min > 0 ? String(min) : '';
+        if (maxInput) maxInput.value = max > 0 ? String(max) : '';
+        applyPriceFilter();
+      });
+    });
+
+    updatePriceFilterInputs();
+  }
+
+  /* ============================================================
+     بخش ۲۴: اتصال رویدادها به محتوا
      ============================================================ */
 
   function attachContentListeners() {
@@ -1404,7 +1667,7 @@
   }
 
   /* ============================================================
-     بخش ۲۴: راه‌اندازی رویدادهای هدر و پنل‌ها
+     بخش ۲۵: راه‌اندازی رویدادهای هدر و پنل‌ها
      ============================================================ */
 
   function initEventListeners() {
@@ -1471,7 +1734,7 @@
   }
 
   /* ============================================================
-     بخش ۲۵: راه‌اندازی نهایی
+     بخش ۲۶: راه‌اندازی نهایی
      ============================================================ */
 
   function init() {
@@ -1479,6 +1742,7 @@
     initViewMode();
     loadCarts();
     loadCompare();
+    initPriceFilter();
     renderTabs();
     renderContent();
     initSearch();
