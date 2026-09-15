@@ -1,6 +1,6 @@
 /* ================================================================
    باشایان | نسخه فروشنده
-   فایل استایل اصلی
+   فایل استایل اصلی — نسخه نهایی اصلاح‌شده
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
@@ -55,7 +55,6 @@ img {
 
 /* ============ 2. THEME VARIABLES ============ */
 :root {
-  /* Light theme (default) */
   --bg: #f5f5f7;
   --bg-elevated: #ffffff;
   --bg-secondary: #fafafa;
@@ -98,7 +97,6 @@ img {
   --floating-h: 72px;
 }
 
-/* Dark theme */
 [data-theme="dark"] {
   --bg: #000000;
   --bg-elevated: #1c1c1e;
@@ -137,12 +135,6 @@ body {
 /* ============ 3. BASE ============ */
 .hidden {
   display: none !important;
-}
-
-.wrap {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 0 16px;
 }
 
 /* ============ 4. HEADER ============ */
@@ -295,7 +287,6 @@ body {
   animation: badgeBump 0.4s var(--ease-spring);
 }
 
-/* Theme toggle */
 #themeToggle {
   position: relative;
   overflow: hidden;
@@ -327,7 +318,6 @@ body {
   opacity: 1;
 }
 
-/* Search */
 .header-search {
   position: relative;
   padding: 0 16px 12px;
@@ -393,7 +383,7 @@ body {
 /* ============ 5. TABS + VIEW TOGGLE ============ */
 .tabs-wrap {
   position: sticky;
-  top: 0;
+  top: var(--header-h);
   z-index: 40;
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--line-soft);
@@ -469,7 +459,6 @@ body {
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* View toggle */
 .view-toggle {
   display: flex;
   background: var(--bg-secondary);
@@ -510,13 +499,12 @@ body {
   min-height: calc(100vh - var(--header-h));
 }
 
-.content-inner {
+#content {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 12px;
 }
 
-/* Category card */
 .cat {
   background: var(--bg-elevated);
   border-radius: var(--radius-lg);
@@ -621,7 +609,6 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Product cell */
 .p-cell {
   min-width: 200px;
 }
@@ -652,7 +639,6 @@ tbody tr:last-child td {
   font-weight: 700;
 }
 
-/* Copyable element */
 .copyable {
   cursor: pointer;
   position: relative;
@@ -671,7 +657,6 @@ tbody tr:last-child td {
   animation: copyPulse 0.5s var(--ease-spring);
 }
 
-/* Price cell */
 .p-price {
   font-weight: 800;
   font-size: 13px;
@@ -723,7 +708,6 @@ tbody tr:last-child td {
   margin-top: 1px;
 }
 
-/* Badge */
 .badge {
   display: inline-block;
   font-size: 9px;
@@ -740,7 +724,6 @@ tbody tr:last-child td {
   color: #fbbf24;
 }
 
-/* Compare checkbox */
 .compare-check {
   width: 22px;
   height: 22px;
@@ -772,7 +755,6 @@ tbody tr:last-child td {
   animation: checkIn 0.3s var(--ease-spring);
 }
 
-/* Add to cart button */
 .add-btn {
   min-width: 74px;
   padding: 8px 12px;
@@ -805,16 +787,6 @@ tbody tr:last-child td {
 .add-btn.added {
   background: var(--success);
   color: #fff;
-}
-
-/* Row in focus trigger */
-.p-focus-trigger {
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.p-focus-trigger:hover {
-  opacity: 0.85;
 }
 
 /* ============ 8. CARD VIEW ============ */
@@ -1208,7 +1180,6 @@ tbody tr:last-child td {
   background: var(--bg-tertiary);
 }
 
-/* Saved carts bar */
 .saved-carts-bar {
   padding: 10px 20px 0;
   flex-shrink: 0;
@@ -1257,7 +1228,6 @@ tbody tr:last-child td {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Cart item */
 .cart-item {
   display: flex;
   gap: 12px;
@@ -1375,7 +1345,6 @@ tbody tr:last-child td {
   background: var(--danger-soft);
 }
 
-/* Empty cart */
 .cart-empty {
   flex: 1;
   display: flex;
@@ -1406,7 +1375,6 @@ tbody tr:last-child td {
   line-height: 1.8;
 }
 
-/* Drawer footer */
 .drawer-footer {
   padding: 14px 20px 18px;
   border-top: 1px solid var(--line-soft);
@@ -1534,10 +1502,12 @@ tbody tr:last-child td {
   max-height: 80vh;
   overflow-y: auto;
   border-top: 1px solid var(--line-soft);
+  pointer-events: none;
 }
 
 .bottom-sheet.open {
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .sheet-handle {
@@ -1556,7 +1526,6 @@ tbody tr:last-child td {
   text-align: center;
 }
 
-/* Saved carts list */
 .saved-carts-list {
   display: flex;
   flex-direction: column;
@@ -1627,7 +1596,6 @@ tbody tr:last-child td {
   background: var(--danger-soft);
 }
 
-/* Author sheet */
 .author-sheet {
   text-align: center;
 }
@@ -2220,7 +2188,33 @@ tbody tr:last-child td {
   opacity: 0.7;
 }
 
-/* ============ 17. ANIMATIONS ============ */
+/* ============ 17. دکمه FOCUS در جدول ============ */
+.focus-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.5;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: opacity 0.2s, background-color 0.2s, transform 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-right: auto;
+  margin-left: 4px;
+  color: var(--ink);
+}
+
+.focus-btn:hover {
+  opacity: 1;
+  background: var(--accent-soft);
+}
+
+.focus-btn:active {
+  transform: scale(0.85);
+}
+
+/* ============ 18. ANIMATIONS ============ */
 @keyframes rowIn {
   from {
     opacity: 0;
@@ -2330,9 +2324,7 @@ tbody tr:last-child td {
   }
 }
 
-/* ============ 18. RESPONSIVE ============ */
-
-/* Tablet */
+/* ============ 19. RESPONSIVE ============ */
 @media (max-width: 900px) {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -2341,7 +2333,6 @@ tbody tr:last-child td {
   }
 }
 
-/* Mobile */
 @media (max-width: 640px) {
   :root {
     --header-h: 110px;
@@ -2409,8 +2400,8 @@ tbody tr:last-child td {
     height: 28px;
   }
 
-  .content-inner {
-    padding: 0 12px;
+  #content {
+    padding: 0 10px;
   }
 
   .cat-head {
@@ -2463,6 +2454,11 @@ tbody tr:last-child td {
     font-size: 11px;
     padding: 7px 10px;
     min-width: 66px;
+  }
+
+  .focus-btn {
+    font-size: 13px;
+    padding: 2px 4px;
   }
 
   .cards-grid {
@@ -2600,7 +2596,6 @@ tbody tr:last-child td {
   }
 }
 
-/* Very small phones */
 @media (max-width: 380px) {
   .cards-grid {
     grid-template-columns: 1fr;
@@ -2611,7 +2606,7 @@ tbody tr:last-child td {
   }
 }
 
-/* ============ 19. PRINT (A4 LANDSCAPE) ============ */
+/* ============ 20. PRINT (A4 LANDSCAPE) ============ */
 @media print {
   body {
     background: #fff !important;
@@ -2633,7 +2628,8 @@ tbody tr:last-child td {
   .search-clear,
   .add-btn,
   .compare-check,
-  .card-add-btn {
+  .card-add-btn,
+  .focus-btn {
     display: none !important;
   }
 
