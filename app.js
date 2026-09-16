@@ -1,16 +1,11 @@
 /* ================================================================
    باشایان | نسخه فروشنده
-   فایل منطق اصلی اپلیکیشن — نسخه نهایی
-   شامل: گالری تصاویر + فیلتر قیمت + تمام اصلاحات
+   فایل منطق اصلی — با پشتیبانی کامل برچسب‌های موجودی
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
 (function () {
   'use strict';
-
-  /* ============================================================
-     بخش ۱: متغیرهای عمومی
-     ============================================================ */
 
   const CONFIG = APP_CONFIG;
   const STORE = CONFIG.storage;
@@ -30,7 +25,7 @@
   };
 
   /* ============================================================
-     بخش ۲: توابع کمکی
+     بخش ۱: توابع کمکی
      ============================================================ */
 
   function faNum(num) {
@@ -57,11 +52,8 @@
   }
 
   function save(key, value) {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.warn('خطا در ذخیره‌سازی:', e);
-    }
+    try { localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { console.warn('خطا در ذخیره‌سازی:', e); }
   }
 
   function load(key, defaultValue) {
@@ -99,7 +91,6 @@
       .replace(/>/g, '&gt;');
   }
 
-  // گرفتن اولین تصویر از آرایه
   function getFirstImage(img) {
     if (!img) return '';
     if (typeof img === 'string') return img;
@@ -107,7 +98,6 @@
     return '';
   }
 
-  // گرفتن آرایه تصاویر
   function getImageArray(img) {
     if (!img) return [];
     if (typeof img === 'string') return img ? [img] : [];
@@ -115,25 +105,19 @@
     return [];
   }
 
-  // بررسی بازه قیمت
   function isInPriceRange(item) {
     if (state.priceMin > 0 && item.p < state.priceMin) return false;
     if (state.priceMax > 0 && item.p > state.priceMax) return false;
     return true;
   }
 
-  // فیلتر بر اساس قیمت
   function filterByPrice(items) {
     if (state.priceMin === 0 && state.priceMax === 0) return items;
     return items.filter(isInPriceRange);
   }
 
-  // ذخیره/بازیابی فیلتر قیمت
   function savePriceFilter() {
-    save('bashayan_price_filter', {
-      min: state.priceMin,
-      max: state.priceMax
-    });
+    save('bashayan_price_filter', { min: state.priceMin, max: state.priceMax });
   }
 
   function loadPriceFilter() {
@@ -143,27 +127,37 @@
   }
 
   /* ============================================================
+     بخش ۲: برچسب‌ها (Tags)
+     ============================================================ */
+
+  function renderTags(tags, sizeClass) {
+    if (!tags || !Array.isArray(tags) || tags.length === 0) return '';
+    const tagConfig = CONFIG.tags || {};
+    let html = '<div class="tag-badges' + (sizeClass ? ' ' + sizeClass : '') + '">';
+    tags.forEach(function (tagKey) {
+      const cfg = tagConfig[tagKey];
+      if (!cfg) return;
+      const cls = tagKey === 'shop' ? 'tag-shop' : 'tag-life';
+      html += '<span class="tag-badge ' + cls + '">' + cfg.label + '</span>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  /* ============================================================
      بخش ۳: Toast
      ============================================================ */
 
   function toast(message, type) {
     const toastEl = document.getElementById('toast');
     if (!toastEl) return;
-
     if (state.toastTimer) clearTimeout(state.toastTimer);
-
     toastEl.textContent = message;
     toastEl.className = 'toast';
     if (type === 'success') toastEl.classList.add('success');
     if (type === 'error') toastEl.classList.add('error');
-
-    requestAnimationFrame(function () {
-      toastEl.classList.add('show');
-    });
-
-    state.toastTimer = setTimeout(function () {
-      toastEl.classList.remove('show');
-    }, 2500);
+    requestAnimationFrame(function () { toastEl.classList.add('show'); });
+    state.toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2500);
   }
 
   /* ============================================================
@@ -212,11 +206,8 @@
 
   function updateViewToggleUI() {
     document.querySelectorAll('.view-btn').forEach(function (btn) {
-      if (btn.dataset.view === state.viewMode) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+      if (btn.dataset.view === state.viewMode) btn.classList.add('active');
+      else btn.classList.remove('active');
     });
   }
 
@@ -229,9 +220,7 @@
     if (!tabsEl) return;
 
     let totalItems = 0;
-    CATEGORIES.forEach(function (cat) {
-      totalItems += cat.items.length;
-    });
+    CATEGORIES.forEach(function (cat) { totalItems += cat.items.length; });
 
     const list = [{ id: 'all', name: 'همه', color: '#0f172a', icon: '🏠' }].concat(CATEGORIES);
 
@@ -239,30 +228,21 @@
     list.forEach(function (cat) {
       const cnt = cat.id === 'all' ? totalItems : cat.items.length;
       const isActive = state.activeTab === cat.id;
-      const inlineStyle = isActive
-        ? 'background:' + cat.color + ';border-color:' + cat.color + ';color:#fff;'
-        : '';
+      const inlineStyle = isActive ? 'background:' + cat.color + ';border-color:' + cat.color + ';color:#fff;' : '';
       const icon = cat.icon ? cat.icon + ' ' : '';
-
-      html += '<button type="button" class="tab' + (isActive ? ' active' : '') + '"'
-        + ' data-id="' + cat.id + '"'
-        + ' style="' + inlineStyle + '">'
-        + icon + cat.name
-        + '<span class="cnt">' + faNum(cnt) + '</span>'
-        + '</button>';
+      html += '<button type="button" class="tab' + (isActive ? ' active' : '') + '" data-id="' + cat.id + '" style="' + inlineStyle + '">'
+        + icon + cat.name + '<span class="cnt">' + faNum(cnt) + '</span></button>';
     });
-
     tabsEl.innerHTML = html;
 
-    const btns = tabsEl.querySelectorAll('.tab');
-    for (let i = 0; i < btns.length; i++) {
-      btns[i].addEventListener('click', function () {
+    tabsEl.querySelectorAll('.tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
         state.activeTab = this.getAttribute('data-id');
         renderTabs();
         renderContent();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-    }
+    });
   }
 
   /* ============================================================
@@ -290,6 +270,7 @@
     const isInCart = isItemInCart(item.n);
     const nameSafe = escapeAttr(item.n);
     const featSafe = escapeAttr(stripHtml(item.k));
+    const tagsHtml = renderTags(item.tags);
 
     return '<tr>'
       + '<td><div class="compare-check' + (isCompared ? ' checked' : '') + '" data-cmp-id="' + id + '" role="checkbox" aria-label="افزودن به مقایسه" tabindex="0"></div></td>'
@@ -298,6 +279,7 @@
           + '<span class="copyable" data-copy="' + nameSafe + '">' + item.n + '</span>'
           + badge
           + '<button type="button" class="focus-btn" data-focus-id="' + id + '" aria-label="مشاهده جزئیات" title="مشاهده جزئیات">👁️</button>'
+          + tagsHtml
         + '</div>'
       + '</td>'
       + '<td class="p-feat-cell">'
@@ -315,8 +297,7 @@
         + note
       + '</td>'
       + '<td>'
-        + '<button type="button" class="add-btn' + (isInCart ? ' added' : '') + '"'
-          + ' data-add-id="' + id + '">'
+        + '<button type="button" class="add-btn' + (isInCart ? ' added' : '') + '" data-add-id="' + id + '">'
           + (isInCart ? '✓ در سبد' : '+ افزودن')
         + '</button>'
       + '</td>'
@@ -324,10 +305,7 @@
   }
 
   function renderTable(cat, items) {
-    const rows = items.map(function (item) {
-      return renderTableRow(item, cat);
-    }).join('');
-
+    const rows = items.map(function (item) { return renderTableRow(item, cat); }).join('');
     return '<div class="table-scroll"><table>'
       + '<thead><tr>'
       + '<th style="width:36px"></th>'
@@ -362,6 +340,7 @@
     }
 
     const badge = item.badge ? '<span class="badge card-badge">نقدی ویژه</span>' : '';
+    const tagsHtml = renderTags(item.tags);
 
     const firstImg = getFirstImage(item.img);
     let imgHtml;
@@ -376,6 +355,7 @@
         + imgHtml
         + '<div class="compare-check' + (isCompared ? ' checked' : '') + '" data-cmp-id="' + id + '" role="checkbox" aria-label="مقایسه" tabindex="0"></div>'
         + badge
+        + tagsHtml
       + '</div>'
       + '<div class="card-body">'
         + '<div class="card-title">' + item.n + '</div>'
@@ -395,10 +375,7 @@
   }
 
   function renderCards(cat, items) {
-    const cards = items.map(function (item, i) {
-      return renderCard(item, cat, i);
-    }).join('');
-
+    const cards = items.map(function (item, i) { return renderCard(item, cat, i); }).join('');
     return '<div class="cards-grid">' + cards + '</div>';
   }
 
@@ -410,13 +387,9 @@
     const items = itemsOverride || cat.items;
     const headStyle = 'background:linear-gradient(135deg,' + cat.color + ' 0%,' + shade(cat.color, -25) + ' 100%)';
     const icon = cat.icon ? cat.icon + ' ' : '';
-
     let bodyHtml;
-    if (state.viewMode === 'card') {
-      bodyHtml = renderCards(cat, items);
-    } else {
-      bodyHtml = renderTable(cat, items);
-    }
+    if (state.viewMode === 'card') bodyHtml = renderCards(cat, items);
+    else bodyHtml = renderTable(cat, items);
 
     return '<section class="cat" data-cat="' + cat.id + '">'
       + '<div class="cat-head" style="' + headStyle + '">'
@@ -439,53 +412,41 @@
   }
 
   /* ============================================================
-     بخش ۱۰: رندر محتوا (با فیلتر قیمت)
+     بخش ۱۰: رندر محتوا
      ============================================================ */
 
   function renderContent() {
     const content = document.getElementById('content');
     if (!content) return;
-
     const q = state.searchTerm.trim().toLowerCase();
 
-    // حالت جستجو
     if (q) {
-      const grouped = {};
-      const order = [];
-      let totalMatches = 0;
-
+      const grouped = {}; const order = []; let totalMatches = 0;
       CATEGORIES.forEach(function (cat) {
         const filtered = cat.items.filter(function (it) {
           if (!isInPriceRange(it)) return false;
           const plain = (it.n + ' ' + stripHtml(it.k)).toLowerCase();
           return plain.indexOf(q) !== -1;
         });
-
         if (filtered.length > 0) {
           grouped[cat.id] = { cat: cat, items: filtered };
           order.push(cat.id);
           totalMatches += filtered.length;
         }
       });
-
       if (totalMatches === 0) {
         content.innerHTML = '<div class="search-title">نتیجه‌ای برای «' + state.searchTerm + '» پیدا نشد.</div>';
         return;
       }
-
       let html = '<div class="search-title">' + faNum(totalMatches) + ' نتیجه برای «' + state.searchTerm + '»</div>';
-      order.forEach(function (id) {
-        html += renderCategoryCard(grouped[id].cat, grouped[id].items);
-      });
+      order.forEach(function (id) { html += renderCategoryCard(grouped[id].cat, grouped[id].items); });
       content.innerHTML = html;
       attachContentListeners();
       return;
     }
 
-    // حالت همه
     if (state.activeTab === 'all') {
-      let out = '';
-      let hasAny = false;
+      let out = ''; let hasAny = false;
       CATEGORIES.forEach(function (cat) {
         const filtered = filterByPrice(cat.items);
         if (filtered.length > 0) {
@@ -493,18 +454,15 @@
           hasAny = true;
         }
       });
-
       if (!hasAny) {
         content.innerHTML = '<div class="search-title">محصولی در این بازه قیمت پیدا نشد.</div>';
         return;
       }
-
       content.innerHTML = out;
       attachContentListeners();
       return;
     }
 
-    // حالت یک دسته خاص
     for (let i = 0; i < CATEGORIES.length; i++) {
       if (CATEGORIES[i].id === state.activeTab) {
         const filtered = filterByPrice(CATEGORIES[i].items);
@@ -531,13 +489,8 @@
     input.addEventListener('input', function (e) {
       if (state.searchTimer) clearTimeout(state.searchTimer);
       const value = e.target.value;
-
-      if (value) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-
+      if (value) clearBtn.classList.remove('hidden');
+      else clearBtn.classList.add('hidden');
       state.searchTimer = setTimeout(function () {
         state.searchTerm = value;
         renderContent();
@@ -561,16 +514,14 @@
     for (let i = 0; i < CATEGORIES.length; i++) {
       const cat = CATEGORIES[i];
       for (let j = 0; j < cat.items.length; j++) {
-        if (itemId(cat.items[j]) === id) {
-          return { item: cat.items[j], category: cat };
-        }
+        if (itemId(cat.items[j]) === id) return { item: cat.items[j], category: cat };
       }
     }
     return null;
   }
 
   /* ============================================================
-     بخش ۱۳: Focus Mode (با گالری)
+     بخش ۱۳: Focus Mode با گالری و برچسب
      ============================================================ */
 
   function openFocus(id) {
@@ -584,12 +535,11 @@
     const isInCart = isItemInCart(item.n);
     const id2 = itemId(item);
     const images = getImageArray(item.img);
+    const tagsHtml = renderTags(item.tags, 'focus-tags');
 
-    // گالری
     let galleryHtml = '';
     if (images.length > 0) {
       let mainImgHtml = '<img class="focus-main-image" id="focusMainImage" src="' + images[0] + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div class="focus-image-placeholder" style="display:none;">📦</div>';
-
       let thumbsHtml = '';
       if (images.length > 1) {
         thumbsHtml = '<div class="focus-thumbs" role="tablist" aria-label="گالری تصاویر">';
@@ -600,17 +550,12 @@
         });
         thumbsHtml += '</div>';
       }
-
       galleryHtml = '<div class="focus-gallery">'
         + '<div class="focus-image-wrap">' + mainImgHtml + '</div>'
         + thumbsHtml
       + '</div>';
     } else {
-      galleryHtml = '<div class="focus-gallery">'
-        + '<div class="focus-image-wrap">'
-          + '<div class="focus-image-placeholder">📦</div>'
-        + '</div>'
-      + '</div>';
+      galleryHtml = '<div class="focus-gallery"><div class="focus-image-wrap"><div class="focus-image-placeholder">📦</div></div></div>';
     }
 
     let priceHtml;
@@ -622,24 +567,14 @@
 
     const html = ''
       + galleryHtml
-      + '<div class="focus-cat-badge" style="background:' + cat.color + ';">'
-        + (cat.icon || '') + ' ' + cat.name
-      + '</div>'
+      + '<div class="focus-cat-badge" style="background:' + cat.color + ';">' + (cat.icon || '') + ' ' + cat.name + '</div>'
       + '<h2 class="focus-title copyable" data-copy="' + escapeAttr(item.n) + '">' + item.n + '</h2>'
+      + tagsHtml
       + '<div class="focus-features copyable" data-copy="' + escapeAttr(stripHtml(item.k)) + '">' + item.k + '</div>'
       + '<div class="focus-prices">'
-        + '<div class="focus-price-row">'
-          + '<span class="label">قیمت نقدی</span>'
-          + '<span class="value copyable" data-copy="' + item.p + '">' + priceHtml + '</span>'
-        + '</div>'
-        + '<div class="focus-price-row bajet">'
-          + '<span class="label">قسط ۲۴ ماهه (باجت)</span>'
-          + '<span class="value copyable" data-copy="' + calcBajet(base) + '">' + faNum(calcBajet(base)) + ' تومان</span>'
-        + '</div>'
-        + '<div class="focus-price-row avand">'
-          + '<span class="label">قسط ۱۸ ماهه (آوند)</span>'
-          + '<span class="value copyable" data-copy="' + calcAvand(base) + '">' + faNum(calcAvand(base)) + ' تومان</span>'
-        + '</div>'
+        + '<div class="focus-price-row"><span class="label">قیمت نقدی</span><span class="value copyable" data-copy="' + item.p + '">' + priceHtml + '</span></div>'
+        + '<div class="focus-price-row bajet"><span class="label">قسط ۲۴ ماهه (باجت)</span><span class="value copyable" data-copy="' + calcBajet(base) + '">' + faNum(calcBajet(base)) + ' تومان</span></div>'
+        + '<div class="focus-price-row avand"><span class="label">قسط ۱۸ ماهه (آوند)</span><span class="value copyable" data-copy="' + calcAvand(base) + '">' + faNum(calcAvand(base)) + ' تومان</span></div>'
       + '</div>'
       + '<button type="button" class="focus-add-btn' + (isInCart ? ' added' : '') + '" data-add-id="' + id2 + '">'
         + (isInCart ? '✓ در سبد' : '+ افزودن به سبد')
@@ -650,15 +585,12 @@
 
     const modal = document.getElementById('focusModal');
     modal.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      modal.classList.add('open');
-    });
+    requestAnimationFrame(function () { modal.classList.add('open'); });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
 
     attachCopyListeners(body);
 
-    // گالری: کلیک روی تصاویر کوچک
     const mainImg = document.getElementById('focusMainImage');
     const thumbs = body.querySelectorAll('.focus-thumb');
     thumbs.forEach(function (thumb) {
@@ -670,16 +602,12 @@
           const ph = mainImg.nextElementSibling;
           if (ph) ph.style.display = 'none';
         }
-        thumbs.forEach(function (t) {
-          t.classList.remove('active');
-          t.setAttribute('aria-selected', 'false');
-        });
+        thumbs.forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
         this.classList.add('active');
         this.setAttribute('aria-selected', 'true');
       });
     });
 
-    // دکمه افزودن به سبد
     const addBtn = body.querySelector('[data-add-id]');
     if (addBtn) {
       addBtn.addEventListener('click', function (e) {
@@ -716,22 +644,14 @@
     updateCompareFloating();
   }
 
-  function saveCompare() {
-    save('bashayan_compare', state.compareList);
-  }
-
-  function loadCompare() {
-    state.compareList = load('bashayan_compare', []);
-  }
+  function saveCompare() { save('bashayan_compare', state.compareList); }
+  function loadCompare() { state.compareList = load('bashayan_compare', []); }
 
   function updateCompareUI() {
     document.querySelectorAll('[data-cmp-id]').forEach(function (el) {
       const id = el.dataset.cmpId;
-      if (state.compareList.indexOf(id) !== -1) {
-        el.classList.add('checked');
-      } else {
-        el.classList.remove('checked');
-      }
+      if (state.compareList.indexOf(id) !== -1) el.classList.add('checked');
+      else el.classList.remove('checked');
     });
     updateCompareFloating();
   }
@@ -745,9 +665,7 @@
       floating.classList.remove('show');
     } else {
       floating.classList.remove('hidden');
-      requestAnimationFrame(function () {
-        floating.classList.add('show');
-      });
+      requestAnimationFrame(function () { floating.classList.add('show'); });
       count.textContent = faNum(state.compareList.length);
     }
   }
@@ -757,19 +675,15 @@
       toast('ابتدا محصولاتی را برای مقایسه انتخاب کنید', 'error');
       return;
     }
-
     const items = [];
     state.compareList.forEach(function (id) {
       const found = findItemById(id);
       if (found) items.push(found);
     });
-
     if (items.length === 0) return;
 
     let minPrice = Infinity;
-    items.forEach(function (f) {
-      if (f.item.p < minPrice) minPrice = f.item.p;
-    });
+    items.forEach(function (f) { if (f.item.p < minPrice) minPrice = f.item.p; });
 
     let colsHtml = '';
     items.forEach(function (f) {
@@ -779,14 +693,12 @@
       const firstImg = getFirstImage(item.img);
 
       let imgHtml;
-      if (firstImg) {
-        imgHtml = '<img src="' + firstImg + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
-      } else {
-        imgHtml = '📦';
-      }
+      if (firstImg) imgHtml = '<img src="' + firstImg + '" alt="' + escapeAttr(item.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
+      else imgHtml = '📦';
 
       const isBest = item.p === minPrice;
       const id = itemId(item);
+      const tagsHtml = renderTags(item.tags);
 
       colsHtml += '<div class="compare-col' + (isBest ? ' highlight' : '') + '">'
         + '<div class="compare-col-head">'
@@ -794,22 +706,11 @@
           + '<div class="compare-col-title">' + item.n + '</div>'
           + '<button type="button" class="compare-col-remove" data-cmp-remove="' + id + '" aria-label="حذف از مقایسه">✕</button>'
         + '</div>'
-        + '<div class="compare-row">'
-          + '<span class="compare-row-label">دسته</span>'
-          + '<span class="compare-row-value">' + (cat.icon || '') + ' ' + cat.name + '</span>'
-        + '</div>'
-        + '<div class="compare-row">'
-          + '<span class="compare-row-label">قیمت</span>'
-          + '<span class="compare-row-value">' + faNum(item.p) + ' تومان</span>'
-        + '</div>'
-        + '<div class="compare-row">'
-          + '<span class="compare-row-label">قسط باجت</span>'
-          + '<span class="compare-row-value">' + faNum(calcBajet(base)) + '</span>'
-        + '</div>'
-        + '<div class="compare-row">'
-          + '<span class="compare-row-label">قسط آوند</span>'
-          + '<span class="compare-row-value">' + faNum(calcAvand(base)) + '</span>'
-        + '</div>'
+        + (tagsHtml ? '<div class="compare-row-tags">' + tagsHtml + '</div>' : '')
+        + '<div class="compare-row"><span class="compare-row-label">دسته</span><span class="compare-row-value">' + (cat.icon || '') + ' ' + cat.name + '</span></div>'
+        + '<div class="compare-row"><span class="compare-row-label">قیمت</span><span class="compare-row-value">' + faNum(item.p) + ' تومان</span></div>'
+        + '<div class="compare-row"><span class="compare-row-label">قسط باجت</span><span class="compare-row-value">' + faNum(calcBajet(base)) + '</span></div>'
+        + '<div class="compare-row"><span class="compare-row-label">قسط آوند</span><span class="compare-row-value">' + faNum(calcAvand(base)) + '</span></div>'
         + '<div class="compare-row" style="flex-direction:column;gap:6px;">'
           + '<span class="compare-row-label">ویژگی‌ها</span>'
           + '<span class="compare-row-value" style="text-align:right;font-weight:500;font-size:11px;line-height:1.7;">' + item.k + '</span>'
@@ -824,25 +725,18 @@
     body.querySelectorAll('[data-cmp-remove]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         toggleCompare(this.dataset.cmpRemove);
-        if (state.compareList.length === 0) {
-          closeCompare();
-        } else {
-          openCompare();
-        }
+        if (state.compareList.length === 0) closeCompare();
+        else openCompare();
       });
     });
 
     body.querySelectorAll('[data-add-id]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        addToCartById(this.dataset.addId, this);
-      });
+      btn.addEventListener('click', function () { addToCartById(this.dataset.addId, this); });
     });
 
     const modal = document.getElementById('compareModal');
     modal.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      modal.classList.add('open');
-    });
+    requestAnimationFrame(function () { modal.classList.add('open'); });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -861,7 +755,6 @@
   function loadCarts() {
     state.carts = load(STORE.carts, {});
     state.currentCartId = load(STORE.activeCart, null);
-
     if (!state.currentCartId || !state.carts[state.currentCartId]) {
       const newId = 'cart_' + Date.now();
       state.carts[newId] = { name: 'سبد فعلی', items: [] };
@@ -897,10 +790,7 @@
     const cart = getCurrentCart();
     let existing = null;
     for (let i = 0; i < cart.items.length; i++) {
-      if (cart.items[i].n === item.n) {
-        existing = cart.items[i];
-        break;
-      }
+      if (cart.items[i].n === item.n) { existing = cart.items[i]; break; }
     }
 
     if (existing) {
@@ -914,7 +804,8 @@
         img: getFirstImage(item.img),
         qty: 1,
         category: cat.name,
-        color: cat.color
+        color: cat.color,
+        tags: item.tags || []
       });
     }
 
@@ -924,9 +815,7 @@
     if (btnEl) {
       btnEl.classList.add('added');
       btnEl.textContent = '✓ اضافه شد';
-      setTimeout(function () {
-        btnEl.textContent = '✓ در سبد';
-      }, 1200);
+      setTimeout(function () { btnEl.textContent = '✓ در سبد'; }, 1200);
     }
 
     const badge = document.getElementById('cartBadge');
@@ -935,7 +824,6 @@
       void badge.offsetWidth;
       badge.classList.add('bump');
     }
-
     toast('به سبد اضافه شد ✓', 'success');
   }
 
@@ -944,9 +832,7 @@
     for (let i = 0; i < cart.items.length; i++) {
       if (cart.items[i].n === name) {
         cart.items[i].qty = (cart.items[i].qty || 1) + delta;
-        if (cart.items[i].qty <= 0) {
-          cart.items.splice(i, 1);
-        }
+        if (cart.items[i].qty <= 0) cart.items.splice(i, 1);
         break;
       }
     }
@@ -957,10 +843,7 @@
   function removeFromCart(name) {
     const cart = getCurrentCart();
     for (let i = 0; i < cart.items.length; i++) {
-      if (cart.items[i].n === name) {
-        cart.items.splice(i, 1);
-        break;
-      }
+      if (cart.items[i].n === name) { cart.items.splice(i, 1); break; }
     }
     saveCarts();
     updateCartUI();
@@ -978,17 +861,13 @@
 
   function getCartTotals() {
     const cart = getCurrentCart();
-    let cash = 0;
-    let bajet = 0;
-    let avand = 0;
-
+    let cash = 0, bajet = 0, avand = 0;
     cart.items.forEach(function (it) {
       const qty = it.qty || 1;
       cash += it.p * qty;
       bajet += calcBajet(it.base) * qty;
       avand += calcAvand(it.base) * qty;
     });
-
     return { cash: cash, bajet: bajet, avand: avand, count: cart.items.length };
   }
 
@@ -999,9 +878,7 @@
     const floatingCount = document.getElementById('floatingCount');
     const floatingTotal = document.getElementById('floatingTotal');
 
-    if (badge) {
-      badge.textContent = faNum(cart.items.length);
-    }
+    if (badge) badge.textContent = faNum(cart.items.length);
 
     if (floating) {
       if (cart.items.length === 0) {
@@ -1009,16 +886,11 @@
         floating.classList.remove('show');
       } else {
         floating.classList.remove('hidden');
-        requestAnimationFrame(function () {
-          floating.classList.add('show');
-        });
+        requestAnimationFrame(function () { floating.classList.add('show'); });
       }
     }
 
-    if (floatingCount) {
-      floatingCount.textContent = faNum(cart.items.length) + ' محصول';
-    }
-
+    if (floatingCount) floatingCount.textContent = faNum(cart.items.length) + ' محصول';
     if (floatingTotal) {
       const totals = getCartTotals();
       floatingTotal.textContent = faNum(totals.cash) + ' تومان';
@@ -1026,7 +898,6 @@
 
     renderCartItems();
 
-    // به‌روزرسانی دکمه‌های افزودن
     document.querySelectorAll('[data-add-id]').forEach(function (btn) {
       const found = findItemById(btn.dataset.addId);
       if (!found) return;
@@ -1046,38 +917,34 @@
     const container = document.getElementById('cartItems');
     const footer = document.getElementById('cartFooter');
     if (!container) return;
-
     const cart = getCurrentCart();
 
     if (cart.items.length === 0) {
-      container.innerHTML = ''
-        + '<div class="cart-empty">'
-          + '<div class="cart-empty-icon">🛒</div>'
-          + '<div class="cart-empty-title">سبد خرید شما خالی است</div>'
-          + '<div class="cart-empty-text">برای افزودن، روی دکمه «+ افزودن» کنار هر محصول بزنید.</div>'
-        + '</div>';
+      container.innerHTML = '<div class="cart-empty">'
+        + '<div class="cart-empty-icon">🛒</div>'
+        + '<div class="cart-empty-title">سبد خرید شما خالی است</div>'
+        + '<div class="cart-empty-text">برای افزودن، روی دکمه «+ افزودن» کنار هر محصول بزنید.</div>'
+      + '</div>';
       if (footer) footer.classList.add('hidden');
       return;
     }
-
     if (footer) footer.classList.remove('hidden');
 
     let html = '';
     cart.items.forEach(function (it) {
       const qty = it.qty || 1;
       let imgHtml;
-      if (it.img) {
-        imgHtml = '<img src="' + it.img + '" alt="' + escapeAttr(it.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
-      } else {
-        imgHtml = '📦';
-      }
+      if (it.img) imgHtml = '<img src="' + it.img + '" alt="' + escapeAttr(it.n) + '" onerror="this.style.display=\'none\';this.parentElement.textContent=\'📦\';">';
+      else imgHtml = '📦';
       const nameSafe = escapeAttr(it.n);
+      const tagsHtml = renderTags(it.tags, 'cart-item-tags');
 
       html += '<div class="cart-item">'
         + '<div class="cart-item-image">' + imgHtml + '</div>'
         + '<div class="cart-item-info">'
           + '<div class="cart-item-name">' + it.n + '</div>'
           + '<div class="cart-item-price">' + faNum(it.p) + ' تومان</div>'
+          + tagsHtml
         + '</div>'
         + '<div class="cart-item-actions">'
           + '<button type="button" class="qty-btn" data-qty-minus="' + nameSafe + '">−</button>'
@@ -1087,23 +954,16 @@
         + '</div>'
       + '</div>';
     });
-
     container.innerHTML = html;
 
     container.querySelectorAll('[data-qty-plus]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        changeQty(this.dataset.qtyPlus, 1);
-      });
+      btn.addEventListener('click', function () { changeQty(this.dataset.qtyPlus, 1); });
     });
     container.querySelectorAll('[data-qty-minus]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        changeQty(this.dataset.qtyMinus, -1);
-      });
+      btn.addEventListener('click', function () { changeQty(this.dataset.qtyMinus, -1); });
     });
     container.querySelectorAll('[data-remove]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        removeFromCart(this.dataset.remove);
-      });
+      btn.addEventListener('click', function () { removeFromCart(this.dataset.remove); });
     });
 
     const totals = getCartTotals();
@@ -1119,7 +979,6 @@
   function openSavedCartsSheet() {
     const sheet = document.getElementById('savedCartsSheet');
     const listEl = document.getElementById('savedCartsList');
-
     const ids = Object.keys(state.carts);
 
     if (ids.length === 0) {
@@ -1139,25 +998,16 @@
         + '</div>';
       });
       listEl.innerHTML = html;
-
       listEl.querySelectorAll('[data-cart-switch]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          switchCart(this.dataset.cartSwitch);
-        });
+        el.addEventListener('click', function () { switchCart(this.dataset.cartSwitch); });
       });
-
       listEl.querySelectorAll('[data-cart-delete]').forEach(function (el) {
-        el.addEventListener('click', function (e) {
-          e.stopPropagation();
-          deleteCart(this.dataset.cartDelete);
-        });
+        el.addEventListener('click', function (e) { e.stopPropagation(); deleteCart(this.dataset.cartDelete); });
       });
     }
 
     sheet.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      sheet.classList.add('open');
-    });
+    requestAnimationFrame(function () { sheet.classList.add('open'); });
     sheet.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -1186,9 +1036,7 @@
     }
     if (!confirm('آیا این سبد حذف شود؟')) return;
     delete state.carts[id];
-    if (state.currentCartId === id) {
-      state.currentCartId = Object.keys(state.carts)[0];
-    }
+    if (state.currentCartId === id) state.currentCartId = Object.keys(state.carts)[0];
     saveCarts();
     updateCartUI();
     updateCurrentCartName();
@@ -1230,7 +1078,6 @@
   function buildSmsText() {
     const cart = getCurrentCart();
     if (cart.items.length === 0) return '';
-
     const totals = getCartTotals();
     const today = new Date().toLocaleDateString('fa-IR');
 
@@ -1238,7 +1085,6 @@
     text += '━━━━━━━━━━━━━━━\n';
     text += 'تاریخ: ' + today + '\n';
     text += 'تعداد اقلام: ' + faNum(totals.count) + '\n\n';
-
     text += '🛒 اقلام سفارش:\n';
     cart.items.forEach(function (it, idx) {
       const qty = it.qty || 1;
@@ -1247,7 +1093,6 @@
       text += '\n';
       text += '   قیمت: ' + faNum(it.p) + ' تومان\n';
     });
-
     text += '\n━━━━━━━━━━━━━━━\n';
     text += '💰 جمع نقدی: ' + faNum(totals.cash) + ' تومان\n';
     text += '📅 قسط ۲۴ ماهه (باجت): ' + faNum(totals.bajet) + ' تومان\n';
@@ -1256,7 +1101,6 @@
     text += CONFIG.sms.taxNote + '\n';
     text += CONFIG.sms.footer + '\n';
     text += CONFIG.brandName + ' — ' + CONFIG.websiteLabel;
-
     return text;
   }
 
@@ -1266,14 +1110,10 @@
       toast('سبد خرید خالی است', 'error');
       return;
     }
-
     const text = buildSmsText();
     const encoded = encodeURIComponent(text);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const url = isIOS
-      ? 'sms:&body=' + encoded
-      : 'sms:?body=' + encoded;
-
+    const url = isIOS ? 'sms:&body=' + encoded : 'sms:?body=' + encoded;
     window.location.href = url;
     toast('در حال باز کردن پیام‌رسان...', 'success');
   }
@@ -1285,14 +1125,10 @@
   function openCalc() {
     const modal = document.getElementById('calcModal');
     modal.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      modal.classList.add('open');
-    });
+    requestAnimationFrame(function () { modal.classList.add('open'); });
     modal.setAttribute('aria-hidden', 'false');
     showOverlay();
-    setTimeout(function () {
-      document.getElementById('calcInput').focus();
-    }, 300);
+    setTimeout(function () { document.getElementById('calcInput').focus(); }, 300);
   }
 
   function closeCalc() {
@@ -1305,25 +1141,20 @@
   function initCalc() {
     const input = document.getElementById('calcInput');
     if (!input) return;
-
     input.addEventListener('input', function () {
       const val = this.value.replace(/[^\d]/g, '');
       this.value = val;
-
       const num = parseInt(val, 10);
       const bajetEl = document.getElementById('calcBajet');
       const avandEl = document.getElementById('calcAvand');
-
       if (!num || isNaN(num)) {
         bajetEl.textContent = '—';
         avandEl.textContent = '—';
         return;
       }
-
       bajetEl.textContent = faNum(calcBajet(num)) + ' تومان';
       avandEl.textContent = faNum(calcAvand(num)) + ' تومان';
     });
-
     document.querySelectorAll('.preset-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         input.value = this.dataset.preset;
@@ -1333,7 +1164,7 @@
   }
 
   /* ============================================================
-     بخش ۱۹: کپی با کلیک
+     بخش ۱۹: کپی
      ============================================================ */
 
   function attachCopyListeners(root) {
@@ -1341,7 +1172,6 @@
     scope.querySelectorAll('.copyable').forEach(function (el) {
       if (el.dataset.copyBound === '1') return;
       el.dataset.copyBound = '1';
-
       el.addEventListener('click', function (e) {
         e.stopPropagation();
         const text = this.dataset.copy || this.textContent;
@@ -1352,11 +1182,8 @@
 
   function copyText(text, sourceEl) {
     if (!text) return;
-
     const doCopy = function () {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        return navigator.clipboard.writeText(text);
-      }
+      if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
       return new Promise(function (resolve, reject) {
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -1364,28 +1191,18 @@
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        try {
-          document.execCommand('copy');
-          resolve();
-        } catch (err) {
-          reject(err);
-        } finally {
-          document.body.removeChild(ta);
-        }
+        try { document.execCommand('copy'); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
       });
     };
-
     doCopy().then(function () {
       toast('کپی شد ✓', 'success');
       if (sourceEl) {
         sourceEl.classList.add('copied');
-        setTimeout(function () {
-          sourceEl.classList.remove('copied');
-        }, 600);
+        setTimeout(function () { sourceEl.classList.remove('copied'); }, 600);
       }
-    }).catch(function () {
-      toast('کپی نشد', 'error');
-    });
+    }).catch(function () { toast('کپی نشد', 'error'); });
   }
 
   /* ============================================================
@@ -1395,9 +1212,7 @@
   function openCartDrawer() {
     const drawer = document.getElementById('cartDrawer');
     drawer.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      drawer.classList.add('open');
-    });
+    requestAnimationFrame(function () { drawer.classList.add('open'); });
     drawer.setAttribute('aria-hidden', 'false');
     showOverlay();
     updateCurrentCartName();
@@ -1417,17 +1232,13 @@
   function showOverlay() {
     const ov = document.getElementById('overlay');
     ov.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      ov.classList.add('show');
-    });
+    requestAnimationFrame(function () { ov.classList.add('show'); });
   }
 
   function hideOverlay() {
     const ov = document.getElementById('overlay');
     ov.classList.remove('show');
-    setTimeout(function () {
-      ov.classList.add('hidden');
-    }, 300);
+    setTimeout(function () { ov.classList.add('hidden'); }, 300);
   }
 
   function hideOverlayIfNoOther() {
@@ -1436,12 +1247,8 @@
   }
 
   function closeAllPanels() {
-    closeCartDrawer();
-    closeFocus();
-    closeCompare();
-    closeCalc();
-    closeSavedCartsSheet();
-    closeAuthorSheet();
+    closeCartDrawer(); closeFocus(); closeCompare(); closeCalc();
+    closeSavedCartsSheet(); closeAuthorSheet();
   }
 
   /* ============================================================
@@ -1451,9 +1258,7 @@
   function openAuthorSheet() {
     const sheet = document.getElementById('authorSheet');
     sheet.classList.remove('hidden');
-    requestAnimationFrame(function () {
-      sheet.classList.add('open');
-    });
+    requestAnimationFrame(function () { sheet.classList.add('open'); });
     sheet.setAttribute('aria-hidden', 'false');
     showOverlay();
   }
@@ -1466,7 +1271,7 @@
   }
 
   /* ============================================================
-     بخش ۲۳: فیلتر بازه قیمت
+     بخش ۲۳: فیلتر قیمت
      ============================================================ */
 
   function openPriceFilter() {
@@ -1486,11 +1291,8 @@
 
   function togglePriceFilter() {
     const panel = document.getElementById('priceFilterPanel');
-    if (panel.classList.contains('open')) {
-      closePriceFilter();
-    } else {
-      openPriceFilter();
-    }
+    if (panel.classList.contains('open')) closePriceFilter();
+    else openPriceFilter();
   }
 
   function updatePriceFilterInputs() {
@@ -1509,53 +1311,33 @@
 
     let count = 0;
     CATEGORIES.forEach(function (cat) {
-      cat.items.forEach(function (it) {
-        if (isInPriceRange(it)) count++;
-      });
+      cat.items.forEach(function (it) { if (isInPriceRange(it)) count++; });
     });
-
     const isActive = state.priceMin > 0 || state.priceMax > 0;
 
     if (statusEl) {
       if (isActive) {
         let txt = 'نمایش ';
-        if (state.priceMin > 0 && state.priceMax > 0) {
-          txt += 'از ' + faNum(state.priceMin) + ' تا ' + faNum(state.priceMax);
-        } else if (state.priceMin > 0) {
-          txt += 'بالای ' + faNum(state.priceMin);
-        } else {
-          txt += 'تا ' + faNum(state.priceMax);
-        }
+        if (state.priceMin > 0 && state.priceMax > 0) txt += 'از ' + faNum(state.priceMin) + ' تا ' + faNum(state.priceMax);
+        else if (state.priceMin > 0) txt += 'بالای ' + faNum(state.priceMin);
+        else txt += 'تا ' + faNum(state.priceMax);
         txt += ' تومان (' + faNum(count) + ' کالا)';
         statusEl.textContent = txt;
       } else {
         statusEl.textContent = 'همه محصولات (' + faNum(count) + ' کالا)';
       }
     }
-
     if (badge) {
-      if (isActive) {
-        badge.classList.remove('hidden');
-        badge.textContent = faNum(count);
-      } else {
-        badge.classList.add('hidden');
-      }
+      if (isActive) { badge.classList.remove('hidden'); badge.textContent = faNum(count); }
+      else badge.classList.add('hidden');
     }
-
     if (clearBtn) {
-      if (isActive) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
+      if (isActive) clearBtn.classList.remove('hidden');
+      else clearBtn.classList.add('hidden');
     }
-
     if (toggle) {
-      if (isActive) {
-        toggle.classList.add('active');
-      } else {
-        toggle.classList.remove('active');
-      }
+      if (isActive) toggle.classList.add('active');
+      else toggle.classList.remove('active');
     }
   }
 
@@ -1578,7 +1360,6 @@
 
   function initPriceFilter() {
     loadPriceFilter();
-
     const toggle = document.getElementById('priceFilterToggle');
     const closeBtn = document.getElementById('priceFilterClose');
     const clearBtn = document.getElementById('priceFilterClear');
@@ -1596,7 +1377,6 @@
         applyPriceFilter();
       });
     }
-
     if (maxInput) {
       maxInput.addEventListener('input', function () {
         const val = parseInt(this.value.replace(/[^\d]/g, ''), 10);
@@ -1604,7 +1384,6 @@
         applyPriceFilter();
       });
     }
-
     document.querySelectorAll('.preset-range').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const min = parseInt(this.dataset.min, 10) || 0;
@@ -1616,7 +1395,6 @@
         applyPriceFilter();
       });
     });
-
     updatePriceFilterInputs();
   }
 
@@ -1628,37 +1406,24 @@
     document.querySelectorAll('[data-cmp-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
-      el.addEventListener('click', function (e) {
-        e.stopPropagation();
-        toggleCompare(this.dataset.cmpId);
-      });
+      el.addEventListener('click', function (e) { e.stopPropagation(); toggleCompare(this.dataset.cmpId); });
       el.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleCompare(this.dataset.cmpId);
-        }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCompare(this.dataset.cmpId); }
       });
     });
 
     document.querySelectorAll('[data-add-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
-      el.addEventListener('click', function (e) {
-        e.stopPropagation();
-        addToCartById(this.dataset.addId, this);
-      });
+      el.addEventListener('click', function (e) { e.stopPropagation(); addToCartById(this.dataset.addId, this); });
     });
 
     document.querySelectorAll('[data-focus-id]').forEach(function (el) {
       if (el.dataset.bound === '1') return;
       el.dataset.bound = '1';
       el.addEventListener('click', function (e) {
-        if (e.target.closest('.copyable') ||
-            e.target.closest('[data-add-id]') ||
-            e.target.closest('[data-cmp-id]') ||
-            e.target.closest('.compare-check')) {
-          return;
-        }
+        if (e.target.closest('.copyable') || e.target.closest('[data-add-id]') ||
+            e.target.closest('[data-cmp-id]') || e.target.closest('.compare-check')) return;
         openFocus(this.dataset.focusId);
       });
     });
@@ -1667,7 +1432,7 @@
   }
 
   /* ============================================================
-     بخش ۲۵: راه‌اندازی رویدادهای هدر و پنل‌ها
+     بخش ۲۵: راه‌اندازی رویدادها
      ============================================================ */
 
   function initEventListeners() {
@@ -1675,56 +1440,40 @@
     if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
     document.querySelectorAll('.view-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        setViewMode(this.dataset.view);
-      });
+      btn.addEventListener('click', function () { setViewMode(this.dataset.view); });
     });
 
     const cartToggle = document.getElementById('cartToggle');
     if (cartToggle) cartToggle.addEventListener('click', openCartDrawer);
-
     const cartClose = document.getElementById('cartClose');
     if (cartClose) cartClose.addEventListener('click', closeCartDrawer);
-
     const floatingCartBtn = document.getElementById('floatingCartBtn');
     if (floatingCartBtn) floatingCartBtn.addEventListener('click', openCartDrawer);
-
     const clearCartBtn = document.getElementById('clearCartBtn');
     if (clearCartBtn) clearCartBtn.addEventListener('click', clearCart);
-
     const smsCartBtn = document.getElementById('smsCartBtn');
     if (smsCartBtn) smsCartBtn.addEventListener('click', sendSms);
-
     const saveCartBtn = document.getElementById('saveCartBtn');
     if (saveCartBtn) saveCartBtn.addEventListener('click', renameCurrentCart);
-
     const savedCartsCurrent = document.getElementById('savedCartsCurrent');
     if (savedCartsCurrent) savedCartsCurrent.addEventListener('click', openSavedCartsSheet);
-
     const newCartBtn = document.getElementById('newCartBtn');
     if (newCartBtn) newCartBtn.addEventListener('click', createNewCart);
 
     const compareFloating = document.getElementById('compareFloating');
     if (compareFloating) compareFloating.addEventListener('click', openCompare);
-
     const floatingCompareBtn = document.getElementById('floatingCompareBtn');
     if (floatingCompareBtn) floatingCompareBtn.addEventListener('click', openCompare);
-
     const compareClose = document.getElementById('compareClose');
     if (compareClose) compareClose.addEventListener('click', closeCompare);
-
     const focusClose = document.getElementById('focusClose');
     if (focusClose) focusClose.addEventListener('click', closeFocus);
-
     const floatingCalcBtn = document.getElementById('floatingCalcBtn');
     if (floatingCalcBtn) floatingCalcBtn.addEventListener('click', openCalc);
-
     const calcClose = document.getElementById('calcClose');
     if (calcClose) calcClose.addEventListener('click', closeCalc);
-
     const designerLink = document.getElementById('designerLink');
     if (designerLink) designerLink.addEventListener('click', openAuthorSheet);
-
     const overlay = document.getElementById('overlay');
     if (overlay) overlay.addEventListener('click', closeAllPanels);
 
