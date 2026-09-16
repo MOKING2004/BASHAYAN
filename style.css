@@ -1,7 +1,6 @@
 /* ================================================================
    باشایان | نسخه فروشنده
-   فایل استایل اصلی — نسخه نهایی
-   شامل: گالری تصاویر + فیلتر قیمت
+   فایل استایل اصلی — با پشتیبانی برچسب‌های موجودی
    طراحی از محمدمهدی کوشکی
    ================================================================ */
 
@@ -78,6 +77,14 @@ img {
   --warning: #ff9500;
   --warning-soft: #fff3e0;
 
+  /* برچسب‌های موجودی */
+  --tag-shop: #16a34a;
+  --tag-shop-bg: #dcfce7;
+  --tag-shop-border: #86efac;
+  --tag-life: #0ea5e9;
+  --tag-life-bg: #e0f2fe;
+  --tag-life-border: #7dd3fc;
+
   --overlay: rgba(0, 0, 0, 0.45);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
@@ -120,6 +127,13 @@ img {
   --danger-soft: #3a1a19;
   --warning: #ff9f0a;
   --warning-soft: #3a2a12;
+
+  --tag-shop: #4ade80;
+  --tag-shop-bg: #14532d;
+  --tag-shop-border: #22c55e;
+  --tag-life: #38bdf8;
+  --tag-life-bg: #075985;
+  --tag-life-border: #0ea5e9;
 
   --overlay: rgba(0, 0, 0, 0.7);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -542,7 +556,92 @@ body {
   font-weight: 600;
 }
 
-/* ============ 7. TABLE VIEW ============ */
+/* ============ 7. TAG BADGES — برچسب‌های موجودی ============ */
+.tag-badges {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid;
+  line-height: 1.6;
+  letter-spacing: 0.1px;
+}
+
+.tag-badge.tag-shop {
+  color: var(--tag-shop);
+  background: var(--tag-shop-bg);
+  border-color: var(--tag-shop-border);
+}
+
+.tag-badge.tag-life {
+  color: var(--tag-life);
+  background: var(--tag-life-bg);
+  border-color: var(--tag-life-border);
+}
+
+/* در جدول - زیر نام محصول */
+.p-name .tag-badges {
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.p-name .tag-badge {
+  font-size: 9px;
+  padding: 1px 7px;
+}
+
+/* در کارت */
+.card-title .tag-badges {
+  display: flex;
+  margin-top: 5px;
+}
+
+.card-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+/* در Focus Mode */
+.focus-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.focus-tags .tag-badge {
+  font-size: 11px;
+  padding: 4px 12px;
+  font-weight: 700;
+}
+
+/* در مقایسه */
+.compare-row-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.compare-row-tags .tag-badge {
+  font-size: 9.5px;
+  padding: 2px 8px;
+}
+
+/* ============ 8. TABLE VIEW ============ */
 .table-scroll {
   overflow-x: auto;
   overflow-y: hidden;
@@ -611,7 +710,7 @@ tbody tr:last-child td {
 }
 
 .p-cell {
-  min-width: 200px;
+  min-width: 220px;
 }
 
 .p-name {
@@ -790,7 +889,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 8. CARD VIEW ============ */
+/* ============ 9. CARD VIEW ============ */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -871,6 +970,22 @@ tbody tr:last-child td {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.card-image-wrap .tag-badges {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  z-index: 2;
+}
+
+.card-image-wrap .tag-badge {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .card-body {
@@ -988,7 +1103,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 9. FLOATING BAR (CART SUMMARY) ============ */
+/* ============ 10. FLOATING BAR (CART SUMMARY) ============ */
 .floating-bar {
   position: fixed;
   bottom: 14px;
@@ -1081,7 +1196,7 @@ tbody tr:last-child td {
   font-size: 16px;
 }
 
-/* ============ 10. COMPARE FLOATING BUTTON ============ */
+/* ============ 11. COMPARE FLOATING BUTTON ============ */
 .compare-floating {
   position: fixed;
   bottom: 96px;
@@ -1125,7 +1240,7 @@ tbody tr:last-child td {
   font-weight: 800;
 }
 
-/* ============ 11. DRAWER (CART) ============ */
+/* ============ 12. DRAWER (CART) ============ */
 .drawer {
   position: fixed;
   top: 0;
@@ -1287,6 +1402,18 @@ tbody tr:last-child td {
   font-weight: 700;
   color: var(--ink-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+.cart-item-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.cart-item-tags .tag-badge {
+  font-size: 9px;
+  padding: 1px 6px;
 }
 
 .cart-item-actions {
@@ -1487,7 +1614,7 @@ tbody tr:last-child td {
   width: 100%;
 }
 
-/* ============ 12. BOTTOM SHEET ============ */
+/* ============ 13. BOTTOM SHEET ============ */
 .bottom-sheet {
   position: fixed;
   left: 0;
@@ -1638,7 +1765,7 @@ tbody tr:last-child td {
   margin-bottom: 10px;
 }
 
-/* ============ 13. MODAL ============ */
+/* ============ 14. MODAL ============ */
 .modal {
   position: fixed;
   inset: 0;
@@ -1729,6 +1856,11 @@ tbody tr:last-child td {
   animation: focusIn 0.5s var(--ease-out);
 }
 
+/* ============ 15. گالری تصاویر در FOCUS MODE ============ */
+.focus-gallery {
+  margin-bottom: 20px;
+}
+
 .focus-image-wrap {
   width: 100%;
   aspect-ratio: 1.3 / 1;
@@ -1737,21 +1869,77 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow: hidden;
   position: relative;
 }
 
-.focus-image {
+.focus-main-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
   padding: 20px;
+  transition: opacity 0.3s var(--ease-apple);
 }
 
 .focus-image-placeholder {
   font-size: 90px;
   opacity: 0.3;
+}
+
+.focus-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.focus-thumbs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.focus-thumbs::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 2px;
+}
+
+.focus-thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--line-soft);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.25s var(--ease-apple), transform 0.2s var(--ease-spring), box-shadow 0.25s;
+}
+
+.focus-thumb:hover {
+  border-color: var(--line-strong);
+}
+
+.focus-thumb:active {
+  transform: scale(0.94);
+}
+
+.focus-thumb.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.focus-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  pointer-events: none;
 }
 
 .focus-cat-badge {
@@ -1769,7 +1957,7 @@ tbody tr:last-child td {
   font-weight: 800;
   line-height: 1.4;
   color: var(--ink);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   letter-spacing: -0.4px;
 }
 
@@ -1868,79 +2056,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 14. گالری تصاویر در FOCUS MODE ============ */
-.focus-gallery {
-  margin-bottom: 20px;
-}
-
-.focus-gallery .focus-image-wrap {
-  margin-bottom: 10px;
-}
-
-.focus-main-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 20px;
-  transition: opacity 0.3s var(--ease-apple);
-}
-
-.focus-thumbs {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 2px;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
-}
-
-.focus-thumbs::-webkit-scrollbar {
-  height: 4px;
-}
-
-.focus-thumbs::-webkit-scrollbar-thumb {
-  background: var(--line);
-  border-radius: 2px;
-}
-
-.focus-thumb {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 2px solid var(--line-soft);
-  padding: 0;
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.25s var(--ease-apple), transform 0.2s var(--ease-spring), box-shadow 0.25s;
-}
-
-.focus-thumb:hover {
-  border-color: var(--line-strong);
-}
-
-.focus-thumb:active {
-  transform: scale(0.94);
-}
-
-.focus-thumb.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.focus-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 4px;
-  pointer-events: none;
-}
-
-/* ============ 15. COMPARE TABLE ============ */
+/* ============ 16. COMPARE TABLE ============ */
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -2048,7 +2164,7 @@ tbody tr:last-child td {
   color: var(--success);
 }
 
-/* ============ 16. CALCULATOR ============ */
+/* ============ 17. CALCULATOR ============ */
 .calc-label {
   display: block;
   font-size: 12.5px;
@@ -2153,7 +2269,7 @@ tbody tr:last-child td {
   border-color: var(--line);
 }
 
-/* ============ 17. PRICE FILTER ============ */
+/* ============ 18. PRICE FILTER ============ */
 .price-filter-toggle {
   position: relative;
   width: 34px;
@@ -2359,7 +2475,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 18. TOAST ============ */
+/* ============ 19. TOAST ============ */
 .toast {
   position: fixed;
   bottom: 100px;
@@ -2402,7 +2518,7 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ============ 19. OVERLAY ============ */
+/* ============ 20. OVERLAY ============ */
 .overlay {
   position: fixed;
   inset: 0;
@@ -2420,7 +2536,7 @@ tbody tr:last-child td {
   pointer-events: auto;
 }
 
-/* ============ 20. FOOTER ============ */
+/* ============ 21. FOOTER ============ */
 .footer {
   background: var(--bg-elevated);
   border-top: 1px solid var(--line-soft);
@@ -2475,7 +2591,7 @@ tbody tr:last-child td {
   opacity: 0.7;
 }
 
-/* ============ 21. دکمه FOCUS ============ */
+/* ============ 22. دکمه FOCUS ============ */
 .focus-btn {
   background: none;
   border: none;
@@ -2501,117 +2617,57 @@ tbody tr:last-child td {
   transform: scale(0.85);
 }
 
-/* ============ 22. ANIMATIONS ============ */
+/* ============ 23. ANIMATIONS ============ */
 @keyframes rowIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes itemIn {
-  from {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes focusIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes badgeBump {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.35);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
 }
 
 @keyframes copyPulse {
-  0% {
-    background: var(--success-soft);
-    transform: scale(1);
-  }
-  50% {
-    background: var(--success);
-    color: #fff;
-    transform: scale(1.04);
-  }
-  100% {
-    background: var(--success-soft);
-    transform: scale(1);
-  }
+  0% { background: var(--success-soft); transform: scale(1); }
+  50% { background: var(--success); color: #fff; transform: scale(1.04); }
+  100% { background: var(--success-soft); transform: scale(1); }
 }
 
 @keyframes checkIn {
-  from {
-    opacity: 0;
-    transform: scale(0) rotate(-45deg);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
+  from { opacity: 0; transform: scale(0) rotate(-45deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
 }
 
 @keyframes numberRoll {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes cartWiggle {
-  0%, 100% {
-    transform: rotate(0);
-  }
-  5%, 15% {
-    transform: rotate(-8deg);
-  }
-  10%, 20% {
-    transform: rotate(8deg);
-  }
-  25% {
-    transform: rotate(0);
-  }
+  0%, 100% { transform: rotate(0); }
+  5%, 15% { transform: rotate(-8deg); }
+  10%, 20% { transform: rotate(8deg); }
+  25% { transform: rotate(0); }
 }
 
-/* ============ 23. RESPONSIVE ============ */
+/* ============ 24. RESPONSIVE ============ */
 @media (max-width: 900px) {
   .cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -2625,313 +2681,92 @@ tbody tr:last-child td {
     --header-h: 110px;
   }
 
-  .header-top {
-    padding: 10px 12px 8px;
-  }
+  .header-top { padding: 10px 12px 8px; }
+  .brand-logo { width: 42px; height: 42px; font-size: 22px; border-radius: 12px; }
+  .brand-text h1 { font-size: 16px; }
+  .brand-badge { font-size: 9px; padding: 1px 7px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 11px; font-size: 18px; }
+  .header-search { padding: 0 12px 10px; }
+  .header-search .search-icon { right: 22px; }
+  .search-clear { left: 22px; }
+  .header-search input { font-size: 13.5px; padding: 10px 38px 10px 38px; }
 
-  .brand-logo {
-    width: 42px;
-    height: 42px;
-    font-size: 22px;
-    border-radius: 12px;
-  }
+  .tabs { padding: 4px 12px; }
+  .tab { font-size: 12px; padding: 7px 13px; }
+  .view-toggle { margin-left: 8px; }
+  .view-btn { width: 32px; height: 28px; }
 
-  .brand-text h1 {
-    font-size: 16px;
-  }
+  #content { padding: 0 10px; }
+  .cat-head { padding: 11px 14px; }
+  .cat-head h2 { font-size: 14px; }
 
-  .brand-badge {
-    font-size: 9px;
-    padding: 1px 7px;
-  }
+  table { min-width: 820px; font-size: 11.5px; }
+  thead th { font-size: 10.5px; padding: 9px 10px; }
+  tbody td { padding: 9px 10px; }
+  .p-name { font-size: 11.5px; min-width: 170px; }
+  .p-feat-cell { min-width: 220px; }
+  .p-feat { font-size: 10.5px; }
+  .p-price { font-size: 12.5px; min-width: 110px; }
+  .p-bajet, .p-avand { font-size: 11.5px; min-width: 110px; }
+  .add-btn { font-size: 11px; padding: 7px 10px; min-width: 66px; }
+  .focus-btn { font-size: 13px; padding: 2px 4px; }
 
-  .icon-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 11px;
-    font-size: 18px;
-  }
+  .tag-badge { font-size: 9px; padding: 1px 6px; }
+  .p-name .tag-badge { font-size: 8.5px; }
 
-  .header-search {
-    padding: 0 12px 10px;
-  }
+  .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; }
+  .card-body { padding: 10px 11px 12px; gap: 6px; }
+  .card-title { font-size: 12px; min-height: 36px; }
+  .card-feat { font-size: 10.5px; }
+  .card-price { font-size: 14px; }
+  .card-installments { font-size: 10px; }
+  .card-installments .inst { padding: 2px 6px; }
+  .card-image-wrap .tag-badge { font-size: 8.5px; padding: 1px 6px; }
 
-  .header-search .search-icon {
-    right: 22px;
-  }
+  .floating-bar { bottom: 10px; padding: 10px 14px; gap: 10px; }
+  .floating-total { font-size: 13px; }
+  .floating-btn { padding: 8px 12px; font-size: 11.5px; }
+  .floating-btn.icon-only { width: 36px; height: 36px; font-size: 15px; }
+  .compare-floating { bottom: 88px; left: 12px; padding: 10px 14px; font-size: 12px; }
 
-  .search-clear {
-    left: 22px;
-  }
+  .drawer { width: 100vw; }
+  .drawer-header { padding: 16px 16px 12px; }
+  .saved-carts-bar { padding: 8px 16px 0; }
+  .drawer-body { padding: 10px 16px; }
+  .drawer-footer { padding: 12px 16px 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .summary-row strong { font-size: 13px; }
+  .summary-row:first-child strong { font-size: 15px; }
+  .drawer-actions { grid-template-columns: 1fr 1fr; }
+  .action-btn { font-size: 11.5px; padding: 10px; }
 
-  .header-search input {
-    font-size: 13.5px;
-    padding: 10px 38px 10px 38px;
-  }
+  .focus-body { padding: 56px 16px 100px; }
+  .focus-title { font-size: 18px; }
+  .focus-features { font-size: 12px; padding: 14px; }
+  .focus-price-row { padding: 12px 14px; }
+  .focus-price-row .value { font-size: 15px; }
+  .focus-add-btn { padding: 13px 26px; font-size: 13.5px; }
+  .focus-thumb { width: 56px; height: 56px; border-radius: 10px; }
+  .focus-main-image { padding: 12px; }
+  .focus-tags .tag-badge { font-size: 10px; padding: 3px 10px; }
 
-  .tabs {
-    padding: 4px 12px;
-  }
+  .compare-grid { grid-template-columns: 1fr; }
 
-  .tab {
-    font-size: 12px;
-    padding: 7px 13px;
-  }
+  .toast { bottom: 90px; font-size: 12px; padding: 10px 18px; }
 
-  .view-toggle {
-    margin-left: 8px;
-  }
-
-  .view-btn {
-    width: 32px;
-    height: 28px;
-  }
-
-  #content {
-    padding: 0 10px;
-  }
-
-  .cat-head {
-    padding: 11px 14px;
-  }
-
-  .cat-head h2 {
-    font-size: 14px;
-  }
-
-  table {
-    min-width: 820px;
-    font-size: 11.5px;
-  }
-
-  thead th {
-    font-size: 10.5px;
-    padding: 9px 10px;
-  }
-
-  tbody td {
-    padding: 9px 10px;
-  }
-
-  .p-name {
-    font-size: 11.5px;
-    min-width: 170px;
-  }
-
-  .p-feat-cell {
-    min-width: 220px;
-  }
-
-  .p-feat {
-    font-size: 10.5px;
-  }
-
-  .p-price {
-    font-size: 12.5px;
-    min-width: 110px;
-  }
-
-  .p-bajet,
-  .p-avand {
-    font-size: 11.5px;
-    min-width: 110px;
-  }
-
-  .add-btn {
-    font-size: 11px;
-    padding: 7px 10px;
-    min-width: 66px;
-  }
-
-  .focus-btn {
-    font-size: 13px;
-    padding: 2px 4px;
-  }
-
-  .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .card-body {
-    padding: 10px 11px 12px;
-    gap: 6px;
-  }
-
-  .card-title {
-    font-size: 12px;
-    min-height: 36px;
-  }
-
-  .card-feat {
-    font-size: 10.5px;
-  }
-
-  .card-price {
-    font-size: 14px;
-  }
-
-  .card-installments {
-    font-size: 10px;
-  }
-
-  .card-installments .inst {
-    padding: 2px 6px;
-  }
-
-  .floating-bar {
-    bottom: 10px;
-    padding: 10px 14px;
-    gap: 10px;
-  }
-
-  .floating-total {
-    font-size: 13px;
-  }
-
-  .floating-btn {
-    padding: 8px 12px;
-    font-size: 11.5px;
-  }
-
-  .floating-btn.icon-only {
-    width: 36px;
-    height: 36px;
-    font-size: 15px;
-  }
-
-  .compare-floating {
-    bottom: 88px;
-    left: 12px;
-    padding: 10px 14px;
-    font-size: 12px;
-  }
-
-  .drawer {
-    width: 100vw;
-  }
-
-  .drawer-header {
-    padding: 16px 16px 12px;
-  }
-
-  .saved-carts-bar {
-    padding: 8px 16px 0;
-  }
-
-  .drawer-body {
-    padding: 10px 16px;
-  }
-
-  .drawer-footer {
-    padding: 12px 16px 16px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .summary-row strong {
-    font-size: 13px;
-  }
-
-  .summary-row:first-child strong {
-    font-size: 15px;
-  }
-
-  .drawer-actions {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .action-btn {
-    font-size: 11.5px;
-    padding: 10px;
-  }
-
-  .focus-body {
-    padding: 56px 16px 100px;
-  }
-
-  .focus-title {
-    font-size: 18px;
-  }
-
-  .focus-features {
-    font-size: 12px;
-    padding: 14px;
-  }
-
-  .focus-price-row {
-    padding: 12px 14px;
-  }
-
-  .focus-price-row .value {
-    font-size: 15px;
-  }
-
-  .focus-add-btn {
-    padding: 13px 26px;
-    font-size: 13.5px;
-  }
-
-  .focus-thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
-  }
-
-  .focus-main-image {
-    padding: 12px;
-  }
-
-  .compare-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .toast {
-    bottom: 90px;
-    font-size: 12px;
-    padding: 10px 18px;
-  }
-
-  /* فیلتر قیمت در موبایل */
-  .price-filter-panel {
-    top: calc(var(--header-h) + 48px);
-  }
-
-  .price-filter-inner {
-    padding: 12px 12px 14px;
-  }
-
-  .price-filter-inputs {
-    gap: 8px;
-  }
-
-  .price-filter-field input {
-    font-size: 12.5px;
-    padding: 9px 10px;
-  }
-
-  .price-filter-presets {
-    gap: 5px;
-  }
-
-  .preset-range {
-    font-size: 10.5px;
-    padding: 7px 10px;
-    min-width: 100px;
-  }
+  .price-filter-panel { top: calc(var(--header-h) + 48px); }
+  .price-filter-inner { padding: 12px 12px 14px; }
+  .price-filter-inputs { gap: 8px; }
+  .price-filter-field input { font-size: 12.5px; padding: 9px 10px; }
+  .price-filter-presets { gap: 5px; }
+  .preset-range { font-size: 10.5px; padding: 7px 10px; min-width: 100px; }
 }
 
 @media (max-width: 380px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .floating-actions .floating-btn:not(.icon-only):not(.primary) {
-    display: none;
-  }
+  .cards-grid { grid-template-columns: 1fr; }
+  .floating-actions .floating-btn:not(.icon-only):not(.primary) { display: none; }
 }
 
-/* ============ 24. PRINT (A4 LANDSCAPE) ============ */
+/* ============ 25. PRINT (A4 LANDSCAPE) ============ */
 @media print {
   body {
     background: #fff !important;
@@ -2974,14 +2809,9 @@ tbody tr:last-child td {
     print-color-adjust: exact;
   }
 
-  .cat-head h2 {
-    font-size: 11px;
-  }
+  .cat-head h2 { font-size: 11px; }
 
-  table {
-    font-size: 8px;
-    min-width: 0;
-  }
+  table { font-size: 8px; min-width: 0; }
 
   thead th {
     font-size: 7.5px;
@@ -2992,20 +2822,13 @@ tbody tr:last-child td {
     print-color-adjust: exact;
   }
 
-  tbody td {
-    padding: 4px 6px;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tr {
-    page-break-inside: avoid;
-  }
+  tbody td { padding: 4px 6px; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
 
   .badge,
-  .p-price .old {
+  .p-price .old,
+  .tag-badge {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
