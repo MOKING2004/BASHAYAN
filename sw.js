@@ -5,7 +5,7 @@
    ================================================================ */
 
 /* نسخه کش — هر بار فایل‌ها تغییر کردند، این عدد را یکی زیاد کن */
-const CACHE_VERSION = 'bashayan-v1.0.0';
+const CACHE_VERSION = 'bashayan-v1.0.1';
 const CACHE_STATIC = CACHE_VERSION + '-static';
 const CACHE_RUNTIME = CACHE_VERSION + '-runtime';
 
