@@ -328,7 +328,7 @@ body.search-open .search {
 }
 .hero-card:hover .hero-ico { transform: scale(1.15) rotate(-4deg); }
 
-/* اصلاح کوتاه‌سازی متن دکمه‌های بزرگ */
+/* اصلاح کوتاه‌سازی متن برای جلوگیری از باگ */
 .hero-name {
   font-size: 13.5px;
   font-weight: 700;
@@ -336,9 +336,11 @@ body.search-open .search {
   line-height: 1.3;
   transition: color .2s;
   width: 100%;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 .hero-count {
   font-size: 11px;
@@ -346,9 +348,10 @@ body.search-open .search {
   color: var(--text-3);
   transition: color .2s;
   width: 100%;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ---------- Toolbar ---------- */
