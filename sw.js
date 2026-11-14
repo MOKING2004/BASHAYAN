@@ -1,12 +1,8 @@
 /* ============================================================
    Life Catalog — Service Worker
-   Strategy:
-     · data.js        → network-first  (قیمت‌ها همیشه تازه)
-     · navigation     → network-first  (با fallback به cache)
-     · static assets  → cache-first    (سرعت + آفلاین)
    ============================================================ */
 
-const CACHE = 'life-v1.0.0';
+const CACHE      = 'life-v1.0.0';
 const TIMEOUT_MS = 2000;
 
 const PRECACHE = [
@@ -41,26 +37,22 @@ self.addEventListener('activate', event => {
 /* ---------------- FETCH ---------------- */
 self.addEventListener('fetch', event => {
   const req = event.request;
-
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
-
-  // فقط هم‌مبدأ
   if (url.origin !== self.location.origin) return;
 
-  // ---- data.js : network-first ----
+  /* data.js → network-first */
   if (url.pathname.endsWith('/data.js') || url.pathname.endsWith('data.js')) {
     event.respondWith(networkFirst(req));
     return;
   }
 
-  // ---- navigation : network-first با fallback ----
+  /* navigation → network-first با fallback */
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
         .then(res => {
-          // کش کردن نسخه تازه HTML برای آفلاین بعدی
           if (res.ok) {
             const clone = res.clone();
             caches.open(CACHE).then(c => c.put('./index.html', clone));
@@ -72,7 +64,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ---- بقیه : cache-first ----
+  /* بقیه → cache-first */
   event.respondWith(cacheFirst(req));
 });
 
@@ -89,7 +81,6 @@ async function cacheFirst(req) {
     }
     return res;
   } catch {
-    // آفلاین و کش نشده — برای فایل‌های غیر ضروری خطا برنگردان
     return new Response('', { status: 504, statusText: 'Offline' });
   }
 }
@@ -115,7 +106,7 @@ async function networkFirst(req) {
   }
 }
 
-/* ---------------- MESSAGE (اختیاری) ---------------- */
+/* ---------------- MESSAGE ---------------- */
 self.addEventListener('message', event => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
