@@ -2,7 +2,7 @@
    Life Catalog — Data
    ============================================================ */
 
-const DATA_VERSION  = "1.0.0";
+const DATA_VERSION  = "1.0.1";
 const DATA_UPDATED  = "۱۴۰۵/۰۸/۲۳";
 
 /* ---------- Color palette ---------- */
