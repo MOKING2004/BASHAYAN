@@ -136,7 +136,7 @@ function calcInstallments(p) {
   if (p <= 0) return '';
   const avand12 = p / 12;
   const avand18 = (p * 1.10) / 18;
-  const budget24 = p * 0.044; // محاسبه: ۴.۴ درصد کل مبلغ
+  const budget24 = p * 0.044;
   const ashnaDown = p / 2;
   const ashnaM = ashnaDown / 3;
   
@@ -146,7 +146,7 @@ function calcInstallments(p) {
       <div class="inst-grid">
         <div class="inst-row"><span>آوند ۱۲ ماهه:</span> <b>${fmtNum(avand12)}</b></div>
         <div class="inst-row"><span>آوند ۱۸ ماهه (۱۰٪):</span> <b>${fmtNum(avand18)}</b></div>
-        <div class="inst-row budget-row"><span>باجت ۲۴ ماهه:</span> <b>${fmtNum(budget24)}</b></div>
+        <div class="inst-row budget-row"><span>باجت ۲۴ ماهه (۴.۴٪):</span> <b>${fmtNum(budget24)}</b></div>
         <div class="inst-row" style="border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px;">
           <span>آشنایان ۳ ماهه:</span> <b>پیش‌پرداخت ${fmtNum(ashnaDown)} | ماهی ${fmtNum(ashnaM)}</b>
         </div>
