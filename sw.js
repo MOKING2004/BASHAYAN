@@ -1,8 +1,8 @@
 /* ============================================================
-   Life Catalog — Service Worker
+   Bashayan Catalog — Service Worker
    ============================================================ */
 
-const CACHE      = 'life-v1.0.3';
+const CACHE      = 'bashayan-v1.1.0';
 const TIMEOUT_MS = 2000;
 
 const PRECACHE = [
