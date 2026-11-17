@@ -192,7 +192,17 @@ body.search-open .search { height: 44px; margin-top: 8px; margin-bottom: 10px; o
 }
 .card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-md); }
 .card-cat { display: inline-flex; align-self: flex-start; padding: 3px 10px; border-radius: 100px; background: var(--accent-soft); color: var(--accent); font-size: 10.5px; font-weight: 600; }
-.card-title { font-size: 14.5px; font-weight: 600; line-height: 1.5; color: var(--text); overflow-wrap: anywhere; }
+
+/* Title & Name Copy */
+.card-title-wrap { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; width: 100%; }
+.card-title { font-size: 14.5px; font-weight: 600; line-height: 1.5; color: var(--text); overflow-wrap: anywhere; flex: 1; }
+.name-copy {
+  display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex-shrink: 0;
+  border-radius: 8px; background: var(--bg-elevated); border: 1px solid var(--line); color: var(--text-3);
+  transition: background .2s, color .2s, border-color .2s, transform .1s; margin-top: 2px; cursor: pointer;
+}
+.name-copy:active { transform: scale(.9); }
+.name-copy.copied { background: var(--success); color: #fff; border-color: var(--success); }
 
 /* Meta & Model Copy */
 .card-meta { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-3); flex-wrap: wrap; }
