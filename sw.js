@@ -2,7 +2,7 @@
    Bashayan Catalog — Service Worker
    ============================================================ */
 
-const CACHE      = 'bashayan-v1.5.0';
+const CACHE      = 'bashayan-v1.6.0';
 const TIMEOUT_MS = 2000;
 
 const PRECACHE = [
