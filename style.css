@@ -1,5 +1,5 @@
 /* ============================================================
-   Life Catalog — Styles
+   Bashayan Catalog — Styles
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -232,6 +232,17 @@ body.search-open .search { height: 44px; margin-top: 8px; margin-bottom: 10px; o
 .inst-grid { padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 11px; }
 .inst-row { display: flex; justify-content: space-between; align-items: center; color: var(--text-2); }
 .inst-row b { color: var(--text); font-weight: 600; }
+
+/* بولدتر کردن ردیف باجت ۲۴ ماهه */
+.budget-row {
+  font-weight: 800 !important;
+  color: var(--accent) !important;
+  margin: 2px 0;
+}
+.budget-row b {
+  font-size: 12.5px;
+  font-weight: 800 !important;
+}
 
 .empty { display: flex; flex-direction: column; align-items: center; padding: 80px 24px; text-align: center; }
 .empty-ico { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-elevated); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--text-3); }
