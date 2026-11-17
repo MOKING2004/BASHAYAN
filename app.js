@@ -1,12 +1,12 @@
 /* ============================================================
-   Life Catalog — App Logic
+   Bashayan Catalog — App Logic
    ============================================================ */
 'use strict';
 
 /* ---------- Utilities ---------- */
 const nf    = new Intl.NumberFormat('en-US');
 const faNum = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
-const fmtNum = n => nf.format(Number(n) || 0);
+const fmtNum = n => nf.format(Math.round(Number(n)) || 0);
 
 const esc = s => String(s).replace(/[&<>"]/g,
   c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
@@ -14,11 +14,8 @@ const esc = s => String(s).replace(/[&<>"]/g,
 const norm = s => String(s)
   .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
   .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-  .replace(/[يى]/g, 'ی')
-  .replace(/ك/g, 'ک')
-  .replace(/\s+/g, ' ')
-  .toLowerCase()
-  .trim();
+  .replace(/[يى]/g, 'ی').replace(/ك/g, 'ک')
+  .replace(/\s+/g, ' ').toLowerCase().trim();
 
 /* ---------- Category Icons ---------- */
 const ICONS = {
@@ -26,9 +23,9 @@ const ICONS = {
   'جارو برقی':          '🧹',
   'فر و مایکروفر':      '🍞',
   'لوازم کوچک':         '⚡',
-  'صوتی و تصویری':      '📺',
+  'صوتی':               '🔊',
+  'تصویری':             '📺',
   'لباسشویی':           '👕',
-  'شستشو':              '💧',
   'ظرفشویی':            '🍽️',
   'سرمایشی و گرمایشی':  '🌡️',
   'آشپزخانه و هود':     '🍳',
@@ -67,7 +64,7 @@ function applyTheme(t) {
 }
 
 (function initTheme() {
-  const saved = localStorage.getItem('life_theme');
+  const saved = localStorage.getItem('bashayan_theme');
   const sys   = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   applyTheme(saved || sys);
 
@@ -75,11 +72,11 @@ function applyTheme(t) {
     const cur  = document.documentElement.getAttribute('data-theme');
     const next = cur === 'dark' ? 'light' : 'dark';
     applyTheme(next);
-    localStorage.setItem('life_theme', next);
+    localStorage.setItem('bashayan_theme', next);
   });
 
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-    if (!localStorage.getItem('life_theme')) applyTheme(e.matches ? 'dark' : 'light');
+    if (!localStorage.getItem('bashayan_theme')) applyTheme(e.matches ? 'dark' : 'light');
   });
 })();
 
@@ -104,7 +101,6 @@ async function copyText(text) {
       return true;
     }
   } catch (_) { /* fallthrough */ }
-
   try {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -119,7 +115,7 @@ async function copyText(text) {
 }
 
 /* ============================================================
-   HERO
+   HERO & CHIPS
    ============================================================ */
 const CAT_COUNTS = PRODUCTS.reduce((a, p) => (a[p.c] = (a[p.c] || 0) + 1, a), {});
 
@@ -138,9 +134,6 @@ function syncHeroActive() {
   );
 }
 
-/* ============================================================
-   CHIPS
-   ============================================================ */
 function renderChips() {
   if (!state.cat) { chipsEl.innerHTML = ''; return; }
   const subs = SUB_CATEGORIES[state.cat] || [];
@@ -159,13 +152,21 @@ function getFiltered() {
 
   if (state.q) {
     const q = norm(state.q);
-    list = list.filter(p =>
-      norm(p.n).includes(q)   ||
-      norm(p.m).includes(q)   ||
-      norm(p.col).includes(q) ||
-      norm(p.c).includes(q)   ||
-      norm(p.s).includes(q)
-    );
+    list = list.filter(p => {
+      const colorNames = p.colors.map(c => c.name).join(' ');
+      return norm(p.n).includes(q)   ||
+             norm(p.m).includes(q)   ||
+             norm(colorNames).includes(q) ||
+             norm(p.c).includes(q)   ||
+             norm(p.s).includes(q);
+    });
+  }
+
+  // Smart Default Sort (Inches for TV, Kg for Washer)
+  if (state.sort === 'default') {
+    if (state.cat === 'تصویری' || state.sub === 'تلویزیون' || state.cat === 'لباسشویی') {
+      list = [...list].sort((a, b) => (a.spec || 0) - (b.spec || 0));
+    }
   }
 
   if (state.sort === 'asc' || state.sort === 'desc') {
@@ -182,28 +183,60 @@ function getFiltered() {
 }
 
 /* ============================================================
-   GRID
+   GRID & INSTALLMENTS
    ============================================================ */
-const COPY_SVG  = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-const CHECK_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+const COPY_SVG  = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+function calcInstallments(p) {
+  if (p <= 0) return '';
+  const avand12 = p / 12;
+  const avand18 = (p * 1.10) / 18;
+  const budget24 = (p * 1.0545798) / 24;
+  const ashnaDown = p / 2;
+  const ashnaM = ashnaDown / 3;
+
+  return `
+    <details class="inst-box">
+      <summary>💳 شرایط اقساط</summary>
+      <div class="inst-grid">
+        <div class="inst-row"><span>آوند ۱۲ ماهه:</span> <b>${fmtNum(avand12)}</b></div>
+        <div class="inst-row"><span>آوند ۱۸ ماهه (۱۰٪):</span> <b>${fmtNum(avand18)}</b></div>
+        <div class="inst-row"><span>باجت ۲۴ ماهه (۵.۴٪):</span> <b>${fmtNum(budget24)}</b></div>
+        <div class="inst-row" style="border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px;">
+          <span>آشنایان ۳ ماهه:</span> <b>پیش‌پرداخت ${fmtNum(ashnaDown)} | ماهی ${fmtNum(ashnaM)}</b>
+        </div>
+      </div>
+    </details>
+  `;
+}
 
 function cardHTML(p, i) {
   const delay = firstRender ? Math.min(i * 0.02, 0.18) : 0;
+  
+  const dots = p.colors.map(c => 
+    `<span class="color-dot" style="--c:${c.hex}" title="${esc(c.name)}"></span>`
+  ).join('');
+
   const foot = p.p > 0
     ? `<div class="price"><span class="num">${fmtNum(p.p)}</span><span class="unit">تومان</span></div>
        <button type="button" class="copy-btn" data-copy="${p.p}" aria-label="کپی قیمت">${COPY_SVG}کپی</button>`
     : `<div class="price"><span class="num" style="color:var(--text-3);font-size:13px;font-weight:500">استعلام قیمت</span></div>`;
 
+  const instHTML = calcInstallments(p.p);
+
   return `<article class="card" style="--delay:${delay}s">
     <span class="card-cat">${esc(p.c)}</span>
     <h3 class="card-title">${esc(p.n)}</h3>
     <div class="card-meta">
-      <span class="color-dot" style="--c:${p.hex}"></span>
-      <span>${esc(p.col)}</span>
+      <div class="color-dots">${dots}</div>
       <span class="dot-sep"></span>
-      <span>مدل ${esc(p.m)}</span>
+      <button type="button" class="model-copy" data-model="${esc(p.m)}" aria-label="کپی مدل">
+        مدل ${esc(p.m)} ${COPY_SVG}
+      </button>
     </div>
     <div class="card-foot">${foot}</div>
+    ${instHTML}
   </article>`;
 }
 
@@ -226,25 +259,17 @@ function renderGrid() {
    EVENTS
    ============================================================ */
 
-/* Hero click */
 heroEl.addEventListener('click', e => {
   const btn = e.target.closest('.hero-card');
   if (!btn) return;
   const cat = btn.dataset.cat;
-
-  if (state.cat === cat) {
-    state.cat = null;
-    state.sub = null;
-  } else {
-    state.cat = cat;
-    state.sub = null;
-  }
+  if (state.cat === cat) { state.cat = null; state.sub = null; }
+  else { state.cat = cat; state.sub = null; }
   syncHeroActive();
   renderChips();
   renderGrid();
 });
 
-/* Chips click */
 chipsEl.addEventListener('click', e => {
   const btn = e.target.closest('.chip');
   if (!btn) return;
@@ -253,35 +278,42 @@ chipsEl.addEventListener('click', e => {
   renderGrid();
 });
 
-/* Sort click */
 sortEl.addEventListener('click', e => {
   const btn = e.target.closest('[data-sort]');
   if (!btn) return;
   state.sort = btn.dataset.sort;
-  sortEl.querySelectorAll('button').forEach(b =>
-    b.classList.toggle('active', b === btn)
-  );
+  sortEl.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
   renderGrid();
 });
 
-/* Copy (delegation on grid) */
 gridEl.addEventListener('click', async e => {
-  const btn = e.target.closest('.copy-btn');
-  if (!btn) return;
-  const price = Number(btn.dataset.copy);
-  const ok = await copyText(fmtNum(price) + ' تومان');
-  if (!ok) { showToast('کپی نشد'); return; }
+  // Copy Price
+  const priceBtn = e.target.closest('.copy-btn');
+  if (priceBtn) {
+    const price = Number(priceBtn.dataset.copy);
+    const ok = await copyText(fmtNum(price) + ' تومان');
+    if (!ok) { showToast('کپی نشد'); return; }
+    priceBtn.classList.add('copied');
+    priceBtn.innerHTML = CHECK_SVG + 'کپی شد';
+    setTimeout(() => { priceBtn.classList.remove('copied'); priceBtn.innerHTML = COPY_SVG + 'کپی'; }, 1500);
+    showToast('قیمت کپی شد');
+    return;
+  }
 
-  btn.classList.add('copied');
-  btn.innerHTML = CHECK_SVG + 'کپی شد';
-  setTimeout(() => {
-    btn.classList.remove('copied');
-    btn.innerHTML = COPY_SVG + 'کپی';
-  }, 1500);
-  showToast('قیمت کپی شد');
+  // Copy Model
+  const modelBtn = e.target.closest('.model-copy');
+  if (modelBtn) {
+    const model = modelBtn.dataset.model;
+    const ok = await copyText(model);
+    if (!ok) { showToast('کپی نشد'); return; }
+    const originalHTML = modelBtn.innerHTML;
+    modelBtn.classList.add('copied');
+    modelBtn.innerHTML = CHECK_SVG + 'کپی شد';
+    setTimeout(() => { modelBtn.classList.remove('copied'); modelBtn.innerHTML = originalHTML; }, 1500);
+    showToast('مدل کپی شد');
+  }
 });
 
-/* Search */
 searchBtn.addEventListener('click', () => {
   const open = document.body.classList.toggle('search-open');
   searchBtn.setAttribute('aria-expanded', open);
@@ -312,22 +344,18 @@ clearQ.addEventListener('click', () => {
   qEl.focus();
 });
 
-/* Reset */
 resetBtn.addEventListener('click', () => {
   state = { cat: null, sub: null, q: '', sort: 'default' };
   qEl.value = '';
   searchEl.classList.remove('has-value');
   document.body.classList.remove('search-open');
   searchBtn.setAttribute('aria-expanded', 'false');
-  sortEl.querySelectorAll('button').forEach(b =>
-    b.classList.toggle('active', b.dataset.sort === 'default')
-  );
+  sortEl.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.sort === 'default'));
   syncHeroActive();
   renderChips();
   renderGrid();
 });
 
-/* Back to top */
 window.addEventListener('scroll', () => {
   toTopBtn.classList.toggle('show', window.scrollY > 500);
 }, { passive: true });
@@ -337,29 +365,23 @@ toTopBtn.addEventListener('click', () => {
 });
 
 /* ============================================================
-   UPDATE NOTIFICATION
+   UPDATE NOTIFICATION & INIT
    ============================================================ */
 (function checkUpdate() {
-  const KEY  = 'life_data_version';
+  const KEY  = 'bashayan_data_version';
   const last = localStorage.getItem(KEY);
-
   if (last && last !== DATA_VERSION) {
     setTimeout(() => showToast('✨ لیست قیمت‌ها به‌روزرسانی شد', true), 900);
   }
   localStorage.setItem(KEY, DATA_VERSION);
-
   const ver = $('verLine');
   if (ver) ver.textContent = `نسخه ${DATA_VERSION} · ${DATA_UPDATED}`;
 })();
 
-/* ============================================================
-   INIT
-   ============================================================ */
 renderHero();
 renderChips();
 renderGrid();
 
-/* ---------- Service Worker ---------- */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
