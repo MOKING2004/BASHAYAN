@@ -2,7 +2,7 @@
    Bashayan Catalog — Service Worker
    ============================================================ */
 
-const CACHE      = 'bashayan-v1.1.0';
+const CACHE      = 'bashayan-v1.2.0'; /* تغییر نسخه برای پاک شدن کش قدیمی */
 const TIMEOUT_MS = 2000;
 
 const PRECACHE = [
@@ -15,40 +15,29 @@ const PRECACHE = [
   './icon.svg',
 ];
 
-/* ---------------- INSTALL ---------------- */
 self.addEventListener('install', event => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(PRECACHE)).catch(() => {})
-  );
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE)).catch(() => {}));
 });
 
-/* ---------------- ACTIVATE ---------------- */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-      ))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
 
-/* ---------------- FETCH ---------------- */
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
-
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  /* data.js → network-first */
   if (url.pathname.endsWith('/data.js') || url.pathname.endsWith('data.js')) {
     event.respondWith(networkFirst(req));
     return;
   }
-
-  /* navigation → network-first با fallback */
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -63,16 +52,12 @@ self.addEventListener('fetch', event => {
     );
     return;
   }
-
-  /* بقیه → cache-first */
   event.respondWith(cacheFirst(req));
 });
 
-/* ---------------- STRATEGIES ---------------- */
 async function cacheFirst(req) {
   const cached = await caches.match(req);
   if (cached) return cached;
-
   try {
     const res = await fetch(req);
     if (res && res.ok && res.type === 'basic') {
@@ -89,11 +74,8 @@ async function networkFirst(req) {
   try {
     const res = await Promise.race([
       fetch(req),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)
-      ),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)),
     ]);
-
     if (res && res.ok) {
       const clone = res.clone();
       caches.open(CACHE).then(c => c.put(req, clone));
@@ -106,7 +88,6 @@ async function networkFirst(req) {
   }
 }
 
-/* ---------------- MESSAGE ---------------- */
 self.addEventListener('message', event => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
