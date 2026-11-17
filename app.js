@@ -171,7 +171,10 @@ function cardHTML(p, i) {
 
   return `<article class="card" style="--delay:${delay}s">
     <span class="card-cat">${esc(p.c)}</span>
-    <h3 class="card-title">${esc(p.n)}</h3>
+    <div class="card-title-wrap">
+      <h3 class="card-title">${esc(p.n)}</h3>
+      <button type="button" class="name-copy" data-name="${esc(p.n)}" aria-label="کپی نام محصول">${COPY_SVG}</button>
+    </div>
     <div class="card-meta">
       <div class="color-dots">${dotsHTML}</div>
       <span class="dot-sep"></span>
@@ -225,6 +228,7 @@ gridEl.addEventListener('click', async e => {
     showToast('قیمت کپی شد');
     return;
   }
+
   const modelBtn = e.target.closest('.model-copy');
   if (modelBtn) {
     const model = modelBtn.dataset.model;
@@ -235,6 +239,19 @@ gridEl.addEventListener('click', async e => {
     modelBtn.innerHTML = CHECK_SVG + 'کپی شد';
     setTimeout(() => { modelBtn.classList.remove('copied'); modelBtn.innerHTML = originalHTML; }, 1500);
     showToast('مدل کپی شد');
+    return;
+  }
+
+  const nameBtn = e.target.closest('.name-copy');
+  if (nameBtn) {
+    const name = nameBtn.dataset.name;
+    const ok = await copyText(name);
+    if (!ok) { showToast('کپی نشد'); return; }
+    const originalHTML = nameBtn.innerHTML;
+    nameBtn.classList.add('copied');
+    nameBtn.innerHTML = CHECK_SVG;
+    setTimeout(() => { nameBtn.classList.remove('copied'); nameBtn.innerHTML = originalHTML; }, 1500);
+    showToast('نام محصول کپی شد');
   }
 });
 
